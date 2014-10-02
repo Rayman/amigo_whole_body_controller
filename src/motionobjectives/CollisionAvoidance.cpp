@@ -1297,6 +1297,9 @@ void CollisionAvoidance::calculateRepulsiveForce(const std::vector<Distance2> &m
 
 void CollisionAvoidance::visualizeRepulsiveForce(Distance2 &d_min,int id) const
 {
+    if (!pub_forces_marker_fcl_.getNumSubscribers())
+        return;
+
 #ifdef USE_FCL
     visualization_msgs::MarkerArray marker_array;
     visualization_msgs::Marker RFviz;
@@ -1349,6 +1352,9 @@ void CollisionAvoidance::visualizeRepulsiveForce(Distance2 &d_min,int id) const
 
 void CollisionAvoidance::visualizeRepulsiveForce(Distance &d_min,int id) const
 {
+    if (!pub_forces_marker_.getNumSubscribers())
+        return;
+
     visualization_msgs::MarkerArray marker_array;
     visualization_msgs::Marker RFviz;
     geometry_msgs::Point pA;
