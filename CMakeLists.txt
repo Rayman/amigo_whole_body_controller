@@ -60,6 +60,8 @@ catkin_package(
  INCLUDE_DIRS include #${BULLET_INCLUDE_DIRS}
  LIBRARIES amigo_whole_body_controller
   CATKIN_DEPENDS
+    code_profiler
+
     # TODO, other deps
     std_msgs
     actionlib_msgs
