@@ -428,7 +428,7 @@ void CollisionAvoidance::selfCollisionFast(std::vector<Distance2> &min_distances
 
             selfCollisionManager.distance(currentBody.fcl_object.get(), &cdata, selfCollisionDistanceFunction);
 
-            if (!cdata.result.o1 || cdata.result.o2)
+            if (!cdata.result.o1 || !cdata.result.o2)
                 continue; // no object found within self_collision.d_threshold
 
             Distance2 distance2;
