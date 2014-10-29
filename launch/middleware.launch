@@ -40,15 +40,11 @@
 	<!-- Arm and torso planning -->
 	<!-- <include file="$(find amigo_launch_files)/launch/manipulation/manipulation.launch" /> -->
 
-	<!-- Spindle -->
-	<include file="$(find amigo_launch_files)/launch/middleware/spindle.launch" />
-
 	<!-- Gripper -->
     <include file="$(find amigo_gripper_server)/launch/start.launch" />
 
 	<!-- Gripper marker detection -->
     <include file="$(find pein_ar_pose)/launch/start.launch"/>
-
 
 	<!-- Reasoner -->
  	<include file="$(find amigo_launch_files)/launch/middleware/reasoner.launch"/>
