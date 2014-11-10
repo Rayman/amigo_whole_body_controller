@@ -32,13 +32,14 @@
     <include file="$(find amigo_launch_files)/launch/middleware/localization.launch"/>
 
 	<!-- NAVIGATION -->
-	<include file="$(find amigo_launch_files)/launch/middleware/navigation.launch"/>
+	<!-- <include file="$(find amigo_launch_files)/launch/middleware/navigation.launch"/> -->
 
 	<!-- Head control -->
 	<include file="$(find amigo_launch_files)/launch/middleware/$(arg head_control).launch" />
 
 	<!-- Arm and torso planning -->
 	<!-- <include file="$(find amigo_launch_files)/launch/manipulation/manipulation.launch" /> -->
+    <include file="$(find amigo_launch_files)/launch/manipulation/grasp_precompute_action.launch"/>
 
 	<!-- Gripper -->
     <include file="$(find amigo_gripper_server)/launch/start.launch" />
