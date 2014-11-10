@@ -1,0 +1,124 @@
+#!/usr/bin/env python
+
+'''
+Send a Cartesian Motion Objective
+
+Usage:
+  cartesionmotionobjective send <x> <y> <z> [<roll> <pitch> <yaw>]
+  cartesionmotionobjective -h | --help
+
+Options:
+  -h --help     Show this screen.
+'''
+
+from docopt import docopt
+import roslib; roslib.load_manifest('amigo_whole_body_controller')
+import rospy
+import actionlib
+
+from amigo_whole_body_controller.msg import *
+from arm_navigation_msgs.msg import *
+from tf.transformations import quaternion_from_euler
+'''
+ArmTaskAction
+ArmTaskActionFeedback
+ArmTaskActionGoal
+ArmTaskActionResult
+ArmTaskFeedback
+ArmTaskGoal
+ArmTaskResult
+WholeBodyControllerStatus
+'''
+
+def euler_z_to_orientation_goal(orientation):
+    roll  = orientation['roll']  or 0
+    pitch = orientation['pitch'] or 0
+    yaw   = orientation['yaw']   or 0
+
+    q = geometry_msgs.msg.Quaternion(*quaternion_from_euler(roll, pitch, yaw))
+
+    # header,link_name,type,orientation,
+    # absolute_roll_tolerance,absolute_pitch_tolerance,absolute_yaw_tolerance
+    # weight
+
+    return OrientationConstraint(
+        orientation=q)
+
+class CartesianMotionObjective():
+
+    link_name = "grippoint_left"
+    stiffnessfactor = 4.0
+
+    def __init__(self, position, orientation, stiffness=None):
+        if not stiffness:
+            stiffness = {
+                'force': (
+                        70.0 * self.stiffnessfactor,
+                        70.0 * self.stiffnessfactor,
+                        50.0 * self.stiffnessfactor),
+                'torque': (
+                        5.0 * self.stiffnessfactor,
+                        5.0 * self.stiffnessfactor,
+                        5.0 * self.stiffnessfactor) }
+        self.stiffness   = stiffness
+        self.position    = position
+        self.orientation = euler_z_to_orientation_goal(orientation)
+
+        self.action_client = actionlib.SimpleActionClient("add_motion_objective", ArmTaskAction)
+
+        self.action_client.wait_for_server()
+        rospy.loginfo("Connected to action server")
+
+    def send_goal_and_wait(self):
+        rospy.loginfo("Sending goal...")
+
+        position_constraint = PositionConstraint(
+            link_name=self.link_name,
+            position=geometry_msgs.msg.Point(*self.position))
+
+        stiffness = geometry_msgs.msg.Wrench(
+            force=geometry_msgs.msg.Vector3(*self.stiffness['force']),
+            torque=geometry_msgs.msg.Vector3(*self.stiffness['torque']))
+
+        goal = ArmTaskGoal(
+            goal_type='grasp',
+            position_constraint=position_constraint,
+            orientation_constraint=self.orientation,
+            stiffness=stiffness)
+
+        print goal
+
+        self.action_client.send_goal(
+            goal        = goal,
+            done_cb     = None,
+            active_cb   = None,
+            feedback_cb = self.feedback_cb)
+
+        rospy.loginfo("Waiting for result...")
+        self.action_client.wait_for_result()
+        rospy.loginfo("Result!")
+
+    def feedback_cb(self):
+        print self
+
+if __name__ == '__main__':
+    arguments = docopt(__doc__)
+    print(arguments)
+
+    position = (
+        arguments['<x>'],
+        arguments['<y>'],
+        arguments['<z>'])
+    orientation = {
+        'roll' : arguments['<roll>' ] ,
+        'pitch': arguments['<pitch>'] ,
+        'yaw'  : arguments['<yaw>'  ] }
+
+    try:
+        rospy.init_node('add_motion_objective')
+
+        cmo = CartesianMotionObjective(position, orientation)
+        cmo.send_goal_and_wait()
+
+    except rospy.ROSInterruptException:
+        print "program interrupted before completion"
