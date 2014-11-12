@@ -86,6 +86,7 @@ class CartesianMotionObjective():
             orientation_constraint=self.orientation,
             stiffness=stiffness)
 
+        #goal = ArmTaskGoal()
         print goal
 
         self.action_client.send_goal(
@@ -95,20 +96,29 @@ class CartesianMotionObjective():
             feedback_cb = self.feedback_cb)
 
         rospy.loginfo("Waiting for result...")
-        self.action_client.wait_for_result()
+        finished = self.action_client.wait_for_result()
+        rospy.loginfo("finished waiting" if finished else "wait not finished")
+
+        if self.action_client.get_state() == actionlib.GoalStatus.REJECTED:
+            rospy.logwarn('the goal was rejected')
+            return
+
         rospy.loginfo("Result!")
+        result = self.action_client.get_result()
+        print result
 
     def feedback_cb(self):
-        print self
+        # print self
+        pass
 
 if __name__ == '__main__':
     arguments = docopt(__doc__)
     print(arguments)
 
     position = (
-        arguments['<x>'],
-        arguments['<y>'],
-        arguments['<z>'])
+        float(arguments['<x>']),
+        float(arguments['<y>']),
+        float(arguments['<z>']))
     orientation = {
         'roll' : arguments['<roll>' ] ,
         'pitch': arguments['<pitch>'] ,
