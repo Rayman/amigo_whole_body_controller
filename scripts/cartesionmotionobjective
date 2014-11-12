@@ -65,6 +65,7 @@ class CartesianMotionObjective():
         self.orientation = euler_z_to_orientation_goal(orientation)
 
         self.action_client = actionlib.SimpleActionClient("add_motion_objective", ArmTaskAction)
+        self.action_client.feedback_cb = self.feedback_cb
 
         self.action_client.wait_for_server()
         rospy.loginfo("Connected to action server")
@@ -73,6 +74,7 @@ class CartesianMotionObjective():
         rospy.loginfo("Sending goal...")
 
         position_constraint = PositionConstraint(
+            header=std_msgs.msg.Header(frame_id='base_link'),
             link_name=self.link_name,
             position=geometry_msgs.msg.Point(*self.position))
 
@@ -89,18 +91,19 @@ class CartesianMotionObjective():
         #goal = ArmTaskGoal()
         print goal
 
-        self.action_client.send_goal(
-            goal        = goal,
-            done_cb     = None,
-            active_cb   = None,
-            feedback_cb = self.feedback_cb)
-
         rospy.loginfo("Waiting for result...")
-        finished = self.action_client.wait_for_result()
-        rospy.loginfo("finished waiting" if finished else "wait not finished")
 
-        if self.action_client.get_state() == actionlib.GoalStatus.REJECTED:
-            rospy.logwarn('the goal was rejected')
+        self.action_client.send_goal(goal)
+
+        finished = False
+        try:
+            finished = self.action_client.wait_for_result()
+        except KeyboardInterrupt:
+            print "Canceling goal..."
+            self.action_client.cancel_goal()
+            self.action_client.wait_for_result(rospy.Duration(0.5))
+
+        if not finished:
             return
 
         rospy.loginfo("Result!")
@@ -108,7 +111,7 @@ class CartesianMotionObjective():
         print result
 
     def feedback_cb(self):
-        # print self
+        print 'feedback!!!'
         pass
 
 if __name__ == '__main__':
@@ -125,7 +128,8 @@ if __name__ == '__main__':
         'yaw'  : arguments['<yaw>'  ] }
 
     try:
-        rospy.init_node('add_motion_objective')
+        # disable signals so we can detect a KeyboardInterrupt
+        rospy.init_node('add_motion_objective', disable_signals=True)
 
         cmo = CartesianMotionObjective(position, orientation)
         cmo.send_goal_and_wait()
