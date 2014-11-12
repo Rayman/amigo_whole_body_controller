@@ -76,6 +76,12 @@ void WholeBodyControllerNode::goalCB(MotionObjectiveServer::GoalHandle handle) {
 
     MotionObjectiveServer::GoalConstPtr goal = handle.getGoal();
 
+    if (goal->position_constraint.link_name == "") {
+        ROS_WARN("the link_name of the goal is not set");
+        handle.setRejected();
+        return;
+    }
+
     CartesianImpedance *cartesian_impedance = new CartesianImpedance(goal->position_constraint.link_name, loop_rate_.expectedCycleTime().toSec());
 
     if (goal->position_constraint.header.frame_id == "") {
