@@ -77,10 +77,18 @@ void WholeBodyControllerNode::goalCB(MotionObjectiveServer::GoalHandle handle) {
     MotionObjectiveServer::GoalConstPtr goal = handle.getGoal();
 
     CartesianImpedance *cartesian_impedance = new CartesianImpedance(goal->position_constraint.link_name, loop_rate_.expectedCycleTime().toSec());
+
+    if (goal->position_constraint.header.frame_id == "") {
+        ROS_WARN("the frame_id of the goal is not set");
+        handle.setRejected();
+        return;
+    }
+
     geometry_msgs::PoseStamped goal_pose;
+    goal_pose.header.frame_id = goal->position_constraint.header.frame_id;
     goal_pose.pose.position = goal->position_constraint.position;
     goal_pose.pose.orientation = goal->orientation_constraint.orientation;
-    goal_pose.header.frame_id = goal->position_constraint.header.frame_id;
+
     // ToDo: include offset
     cartesian_impedance->setGoal(goal_pose);
     cartesian_impedance->setGoalOffset(goal->position_constraint.target_point_offset);
