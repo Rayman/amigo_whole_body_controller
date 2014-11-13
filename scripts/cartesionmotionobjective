@@ -46,7 +46,7 @@ def euler_z_to_orientation_goal(orientation):
 
 class CartesianMotionObjective():
 
-    link_name = "grippoint_left"
+    link_name = "grippoint_right"
     stiffnessfactor = 4.0
 
     def __init__(self, position, orientation, stiffness=None):
@@ -57,9 +57,9 @@ class CartesianMotionObjective():
                         70.0 * self.stiffnessfactor,
                         50.0 * self.stiffnessfactor),
                 'torque': (
-                        5.0 * self.stiffnessfactor,
-                        5.0 * self.stiffnessfactor,
-                        5.0 * self.stiffnessfactor) }
+                        0.0 * self.stiffnessfactor,
+                        0.0 * self.stiffnessfactor,
+                        0.0 * self.stiffnessfactor) }
         self.stiffness   = stiffness
         self.position    = position
         self.orientation = euler_z_to_orientation_goal(orientation)
@@ -115,7 +115,7 @@ class CartesianMotionObjective():
         pass
 
 if __name__ == '__main__':
-    arguments = docopt(__doc__)
+    arguments = docopt(__doc__, options_first=True)
     print(arguments)
 
     position = (
