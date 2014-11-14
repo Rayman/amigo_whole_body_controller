@@ -1,15 +1,10 @@
 #include "amigo_whole_body_controller/motionobjectives/CollisionAvoidance.h"
-#include <math.h>
 
-#include <std_msgs/Float64.h>
-#include <std_msgs/Float64MultiArray.h>
 #include <visualization_msgs/MarkerArray.h>
 #include "amigo_whole_body_controller/conversions.h"
 
 #ifdef USE_FCL
-
 #include <fcl/broadphase/broadphase_dynamic_AABB_tree.h>
-
 #endif
 
 // debug information for transformations
