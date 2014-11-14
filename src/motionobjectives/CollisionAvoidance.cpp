@@ -4,7 +4,7 @@
 #include <std_msgs/Float64.h>
 #include <std_msgs/Float64MultiArray.h>
 #include <visualization_msgs/MarkerArray.h>
-#include "../conversions.h"
+#include "amigo_whole_body_controller/conversions.h"
 
 #ifdef USE_FCL
 

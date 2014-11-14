@@ -1,4 +1,4 @@
-#include "conversions.h"
+#include "amigo_whole_body_controller/conversions.h"
 
 #include <fcl/BVH/BVH_model.h>
 
