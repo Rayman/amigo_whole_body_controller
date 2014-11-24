@@ -116,8 +116,30 @@ void WholeBodyControllerNode::cancelCB(MotionObjectiveServer::GoalHandle handle)
     std::string id = handle.getGoalID().id;
     ROS_INFO("cancelCB: %s", id.c_str());
 
-    // delete from the WBC
     MotionObjectivePtr motion_objective = goal_map[id].second;
+
+    // publish the result
+    MotionObjectiveServer::Result result;
+    result.status_code.status = motion_objective->getStatus();
+
+    switch (result.status_code.status) {
+        case amigo_whole_body_controller::WholeBodyControllerStatus::AT_GOAL_POSE:
+            handle.setSucceeded(result);
+            break;
+        case amigo_whole_body_controller::WholeBodyControllerStatus::MOVING_TO_GOAL_POSE:
+            handle.setCanceled(result);
+            break;
+        case amigo_whole_body_controller::WholeBodyControllerStatus::IDLE:
+            ROS_WARN("the motion objective was idle??? %s", id.c_str());
+            handle.setAborted();
+            break;
+        default:
+            ROS_WARN("wrong status result for handle %s is %i", id.c_str(), result.status_code.status);
+            handle.setAborted();
+            break;
+    }
+
+    // delete from the WBC
     wholeBodyController_.removeMotionObjective(motion_objective.get());
 
     // delete from the map
@@ -127,6 +149,19 @@ void WholeBodyControllerNode::cancelCB(MotionObjectiveServer::GoalHandle handle)
 }
 
 void WholeBodyControllerNode::update() {
+
+    // check for succeeded motion objectives
+    // using a variation of Mark Ransom algorithm (http://stackoverflow.com/a/180772)
+    for(GoalMotionObjectiveMap::iterator it = goal_map.begin(); it != goal_map.end(); ++it)
+    {
+        MotionObjectiveServer::GoalHandle handle = it->second.first;
+        MotionObjectivePtr motion_objective      = it->second.second;
+
+        MotionObjectiveServer::Feedback feedback;
+        feedback.status_code.status = motion_objective->getStatus();
+        handle.publishFeedback(feedback);
+    }
+
     // Set base pose in whole-body controller (remaining joints are set implicitly in the callback functions in robot_interface)
     robot_interface.setAmclPose();
 

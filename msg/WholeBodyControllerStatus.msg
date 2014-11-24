@@ -1,8 +1,11 @@
 # Overall
-int32 IDLE=0
-int32 AT_GOAL_POSE=1
-int32 MOVING_TO_GOAL_POSE=2
+int8 IDLE=0
+int8 AT_GOAL_POSE=1
+int8 MOVING_TO_GOAL_POSE=2
 
 # Errors
-int32 GOAL_INFEASIBLE=-1
-int32 TIMED_OUT=-2
+int8 GOAL_INFEASIBLE=-1
+int8 TIMED_OUT=-2
+
+# Current status
+int8 status

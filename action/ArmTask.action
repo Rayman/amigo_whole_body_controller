@@ -20,9 +20,11 @@ string remove_tip_frame
 string remove_root_frame
 
 ---
+
 # Define the result
-WholeBodyControllerStatus status_code 
-#TEUN# Don't you want something like the return of a list of joint values?
+WholeBodyControllerStatus status_code
+
 ---
+
 # Define a feedback message
-geometry_msgs/Twist pose_error 
+WholeBodyControllerStatus status_code
