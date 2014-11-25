@@ -4,7 +4,9 @@
 Send a Cartesian Motion Objective
 
 Usage:
-  cartesionmotionobjective send <x> <y> <z> [<roll> <pitch> <yaw>]
+  cartesionmotionobjective left  <x> <y> <z> [<roll> <pitch> <yaw>]
+  cartesionmotionobjective right <x> <y> <z> [<roll> <pitch> <yaw>]
+  cartesionmotionobjective cancel
   cartesionmotionobjective -h | --help
 
 Options:
@@ -19,16 +21,6 @@ import actionlib
 from amigo_whole_body_controller.msg import *
 from arm_navigation_msgs.msg import *
 from tf.transformations import quaternion_from_euler
-'''
-ArmTaskAction
-ArmTaskActionFeedback
-ArmTaskActionGoal
-ArmTaskActionResult
-ArmTaskFeedback
-ArmTaskGoal
-ArmTaskResult
-WholeBodyControllerStatus
-'''
 
 def euler_z_to_orientation_goal(orientation):
     roll  = orientation['roll']  or 0
@@ -49,9 +41,8 @@ class CartesianMotionObjective():
     link_name = "grippoint_right"
     stiffnessfactor = 4.0
 
-    def __init__(self, position, orientation, stiffness=None):
-        if not stiffness:
-            stiffness = {
+    def __init__(self):
+        self.stiffness   = {
                 'force': (
                         70.0 * self.stiffnessfactor,
                         70.0 * self.stiffnessfactor,
@@ -60,9 +51,6 @@ class CartesianMotionObjective():
                         0.0 * self.stiffnessfactor,
                         0.0 * self.stiffnessfactor,
                         0.0 * self.stiffnessfactor) }
-        self.stiffness   = stiffness
-        self.position    = position
-        self.orientation = euler_z_to_orientation_goal(orientation)
 
         self.action_client = actionlib.SimpleActionClient("add_motion_objective", ArmTaskAction)
         self.action_client.feedback_cb = self.feedback_cb
@@ -70,8 +58,9 @@ class CartesianMotionObjective():
         self.action_client.wait_for_server()
         rospy.loginfo("Connected to action server")
 
-    def send_goal_and_wait(self):
-        rospy.loginfo("Sending goal...")
+    def build_goal(self, position, orientation):
+        self.position    = position
+        orientation_goal = euler_z_to_orientation_goal(orientation)
 
         position_constraint = PositionConstraint(
             header=std_msgs.msg.Header(frame_id='base_link'),
@@ -85,16 +74,18 @@ class CartesianMotionObjective():
         goal = ArmTaskGoal(
             goal_type='grasp',
             position_constraint=position_constraint,
-            orientation_constraint=self.orientation,
+            orientation_constraint=orientation_goal,
             stiffness=stiffness)
+        return goal
 
-        #goal = ArmTaskGoal()
+    def send_goal(self, goal):
+        rospy.loginfo("Sending goal...")
         print goal
 
         rospy.loginfo("Waiting for result...")
-
         self.action_client.send_goal(goal)
 
+    def wait_for_result(self):
         finished = False
         try:
             finished = self.action_client.wait_for_result()
@@ -102,7 +93,6 @@ class CartesianMotionObjective():
             print "Canceling goal..."
             self.action_client.cancel_goal()
             self.action_client.wait_for_result(rospy.Duration(0.5))
-
         if not finished:
             return
 
@@ -118,21 +108,28 @@ if __name__ == '__main__':
     arguments = docopt(__doc__, options_first=True)
     print(arguments)
 
-    position = (
-        float(arguments['<x>']),
-        float(arguments['<y>']),
-        float(arguments['<z>']))
-    orientation = {
-        'roll' : arguments['<roll>' ] ,
-        'pitch': arguments['<pitch>'] ,
-        'yaw'  : arguments['<yaw>'  ] }
-
     try:
         # disable signals so we can detect a KeyboardInterrupt
         rospy.init_node('add_motion_objective', disable_signals=True)
 
-        cmo = CartesianMotionObjective(position, orientation)
-        cmo.send_goal_and_wait()
+        if arguments['cancel']:
+            cmo = CartesianMotionObjective()
+            cmo.action_client.cancel_all_goals()
+            cmo.action_client.wait_for_server()
 
-    except rospy.ROSInterruptException:
+        elif arguments['left'] or arguments['right']:
+            position = (
+                float(arguments['<x>']),
+                float(arguments['<y>']),
+                float(arguments['<z>']))
+            orientation = {
+                'roll' : arguments['<roll>' ] ,
+                'pitch': arguments['<pitch>'] ,
+                'yaw'  : arguments['<yaw>'  ] }
+
+            cmo = CartesianMotionObjective()
+            cmo.send_goal(cmo.build_goal(position, orientation))
+            cmo.wait_for_result()
+
+    except KeyboardInterrupt:
         print "program interrupted before completion"
