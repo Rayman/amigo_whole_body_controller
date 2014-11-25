@@ -28,9 +28,7 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS thread)
 find_package(orocos_kdl REQUIRED)
 find_package(octomap REQUIRED)
-
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(BULLET bullet)
+find_package(Bullet REQUIRED)
 
 ## Generate messages in the 'msg' folder
 add_message_files(FILES
