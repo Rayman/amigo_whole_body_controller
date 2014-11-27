@@ -106,7 +106,6 @@ class CartesianMotionObjective():
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, options_first=True)
-    print(arguments)
 
     try:
         # disable signals so we can detect a KeyboardInterrupt
