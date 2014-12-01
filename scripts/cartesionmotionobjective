@@ -38,7 +38,6 @@ def euler_z_to_orientation_goal(orientation):
 
 class CartesianMotionObjective():
 
-    link_name = "grippoint_right"
     stiffnessfactor = 4.0
 
     def __init__(self):
@@ -58,13 +57,13 @@ class CartesianMotionObjective():
         self.action_client.wait_for_server()
         rospy.loginfo("Connected to action server")
 
-    def build_goal(self, position, orientation):
+    def build_goal(self, link_name, position, orientation):
         self.position    = position
         orientation_goal = euler_z_to_orientation_goal(orientation)
 
         position_constraint = PositionConstraint(
             header=std_msgs.msg.Header(frame_id='base_link'),
-            link_name=self.link_name,
+            link_name=link_name,
             position=geometry_msgs.msg.Point(*self.position))
 
         stiffness = geometry_msgs.msg.Wrench(
@@ -109,7 +108,7 @@ if __name__ == '__main__':
 
     try:
         # disable signals so we can detect a KeyboardInterrupt
-        rospy.init_node('add_motion_objective', disable_signals=True)
+        rospy.init_node('add_motion_objective', anonymous=True, disable_signals=True)
 
         if arguments['cancel']:
             cmo = CartesianMotionObjective()
@@ -117,6 +116,12 @@ if __name__ == '__main__':
             cmo.action_client.wait_for_server()
 
         elif arguments['left'] or arguments['right']:
+
+            for side in ['left', 'right']:
+                if arguments[side]:
+                    link_name = "grippoint_" + side
+                    break
+
             position = (
                 float(arguments['<x>']),
                 float(arguments['<y>']),
@@ -127,7 +132,7 @@ if __name__ == '__main__':
                 'yaw'  : arguments['<yaw>'  ] }
 
             cmo = CartesianMotionObjective()
-            cmo.send_goal(cmo.build_goal(position, orientation))
+            cmo.send_goal(cmo.build_goal(link_name=link_name, position=position, orientation=orientation))
             cmo.wait_for_result()
 
     except KeyboardInterrupt:
