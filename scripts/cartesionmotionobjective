@@ -82,7 +82,8 @@ class CartesianMotionObjective():
         print goal
 
         rospy.loginfo("Waiting for result...")
-        self.action_client.send_goal(goal)
+        self.action_client.send_goal(goal,
+            done_cb=None, active_cb=None, feedback_cb=self.feedback_cb)
 
     def wait_for_result(self):
         finished = False
@@ -99,9 +100,9 @@ class CartesianMotionObjective():
         result = self.action_client.get_result()
         print result
 
-    def feedback_cb(self):
-        print 'feedback!!!'
-        pass
+    def feedback_cb(self, feedback):
+        code = feedback.status_code
+        print 'feedback!!!', code.status
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, options_first=True)
