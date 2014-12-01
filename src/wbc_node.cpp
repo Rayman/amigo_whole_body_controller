@@ -150,11 +150,10 @@ void WholeBodyControllerNode::cancelCB(MotionObjectiveServer::GoalHandle handle)
 
 void WholeBodyControllerNode::update() {
 
-    // check for succeeded motion objectives
-    // using a variation of Mark Ransom algorithm (http://stackoverflow.com/a/180772)
+    // publish feedback for all motion objectives
     for(GoalMotionObjectiveMap::iterator it = goal_map.begin(); it != goal_map.end(); ++it)
     {
-        MotionObjectiveServer::GoalHandle handle = it->second.first;
+        MotionObjectiveServer::GoalHandle &handle = it->second.first;
         MotionObjectivePtr motion_objective      = it->second.second;
 
         MotionObjectiveServer::Feedback feedback;
