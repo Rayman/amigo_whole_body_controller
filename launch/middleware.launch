@@ -2,73 +2,54 @@
 
 <launch>
 
-    <!-- State that we wont use ED as world model -->
-    <param name="/use_ed" value="false"/>
+    <param name="/use_ed" value="true"/>
 
+    <arg name="env" default="$(optenv ROBOT_ENV robotics_testlab_B)" />
     <arg name="ROBOT_REAL" default="$(optenv ROBOT_REAL false)" />
-    <arg name="snapmap" default="false"/>
-    <arg name="perception" default="$(optenv AMIGO_PERCEPTION true)"/>
-    <arg name="nav" default="true"/>          <!-- default navigation is used -->
-    <arg name="3dnav" default="$(optenv AMIGO_3DNAV true)"/>       <!-- default navigation is based on 2d (laser) information -->
-    <arg name="wbc" default="false"/>         <!-- if set to true, use whole body control -->
-    <arg name="env" default="$(optenv ROBOT_ENV robotics_testlab_A)"/>
-    <arg name="wire_frame" default="/map"/>
-    <arg name="wire_viz_frame" default="/map"/>
 
-    <arg name="head_control" default="$(optenv AMIGO_HEAD_CONTROL head)"/>
+    <group if="$(arg ROBOT_REAL)">
+        <!-- REAL ROBOT -->
 
-	<group if="$(arg ROBOT_REAL)">
-		<!-- REAL ROBOT -->
+        <!-- Start all sensors -->
+        <include file="$(find amigo_launch_files)/launch/sensors/sensors.launch" />
+    </group>
 
-		<!-- Start all sensors -->
-		<include file="$(find amigo_launch_files)/launch/sensors/sensors.launch" />
-	</group>
 
-    <!-- PERCEPTION -->
-    <include file="$(find amigo_launch_files)/launch/middleware/perception.launch">
-    </include>
+    <!-- Localization -->
+    <include file="$(find amigo_launch_files)/launch/middleware/localization.launch" />
 
-    <!-- LOCALIZATION -->
-    <include file="$(find amigo_launch_files)/launch/middleware/localization.launch"/>
+    <!-- Head movement -->
+    <include file="$(find head_ref)/launch/head_ref.launch" />
+    <node name="head_ref_ed_client" pkg="head_ref_ed_client" type="head_ref_ed_client" output="screen" />
 
-	<!-- NAVIGATION -->
-	<!-- <include file="$(find amigo_launch_files)/launch/middleware/navigation.launch"/> -->
-
-	<!-- Head control -->
-	<include file="$(find amigo_launch_files)/launch/middleware/$(arg head_control).launch" />
-
-	<!-- Arm and torso planning -->
-	<!-- <include file="$(find amigo_launch_files)/launch/manipulation/manipulation.launch" /> -->
+    <!-- Manipulation -->
+    <!-- <include file="$(find amigo_launch_files)/launch/manipulation/manipulation.launch" /> -->
     <include file="$(find amigo_launch_files)/launch/manipulation/grasp_precompute_action.launch"/>
 
-	<!-- Gripper -->
-    <include file="$(find amigo_gripper_server)/launch/start.launch" />
+    <!-- Gripper -->
+    <include file="$(find amigo_launch_files)/launch/manipulation/grippers.launch"/>
 
-	<!-- Gripper marker detection -->
-    <include file="$(find pein_ar_pose)/launch/start.launch"/>
-
-	<!-- Reasoner -->
- 	<include file="$(find amigo_launch_files)/launch/middleware/reasoner.launch"/>
+    <!-- RGBD (Kinect) server -->
+    <include file="$(find rgbd)/launch/top_kinect_server.launch" />
 
     <!-- World Model -->
- 	<include file="$(find amigo_launch_files)/launch/middleware/world_model.launch">
-        <arg name="wire_viz_frame" value="$(arg wire_viz_frame)"/>
-        <arg name="wire_frame" value="$(arg wire_frame)"/>
-    </include>
+    <node name="ed_server" pkg="ed" type="ed_server" args="$(find ed)/config/config_amigo.yml" output="screen" />
 
-	<!-- Node to attach world model object to gripper-->
-	<node pkg="obj_in_gripper" type="obj_in_gripper_pub" name="obj_in_gripper"/>
+    <!-- Reasoner -->
+    <param name="/reasoner/world_model_type" value="ed"/>
+    <include file="$(find tue_reasoner_core)/launch/start.launch" />
 
-	<!-- Start text to speech -->
+    <!-- Start text to speech -->
     <!-- <include file="$(find amigo_launch_files)/launch/interaction/text_to_speech.launch" /> -->
 
     <!-- Start speech recognition -->
-    <!-- <include file="$(find amigo_launch_files)/launch/interaction/speech_recognition.launch" />	 -->
+    <!-- <include file="$(find amigo_launch_files)/launch/interaction/speech_recognition.launch" />  -->
 
     <!-- Start speech interpreter -->
-    <!-- <include file="$(find amigo_launch_files)/launch/interaction/speech_interpreter.launch" />	 -->
+    <!-- <include file="$(find amigo_launch_files)/launch/interaction/speech_interpreter.launch" />  -->
 
-	<!-- Skill Server -->
-    <!-- ... -->
+    <!-- Action server -->
+    <node name="action_server" pkg="action_server" type="action_server_main" output="screen" />
+    <node name="action_server_py" pkg="action_server" type="main.py" output="screen" />
 
 </launch>
