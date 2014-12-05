@@ -3,10 +3,12 @@ collision_avoidance:
         d_threshold: 0.066
         F_max: 18
         order: 2
+        visualization_force_factor: 10
     environment_collision:
         d_threshold: 0.066
         F_max: 18
         order: 2
+        visualization_force_factor: 10
 
 # d_threshold:   Threshold from which the repulsive force starts acting, in [m]
 # F_max:         Maximum amplitude of the repulsive force in [N] (when d=0 [m])

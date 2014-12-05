@@ -402,6 +402,9 @@ bool selfCollisionDistanceFunction(fcl::CollisionObject* co_other, fcl::Collisio
 
 void CollisionAvoidance::selfCollisionFast(std::vector<Distance2> &min_distances)
 {
+    double min_distance = ca_param_.self_collision.d_threshold * ca_param_.self_collision.visualization_force_factor;
+    ROS_INFO_ONCE_NAMED("CollisionAvoidance", "selfCollision: ignoring distances bigger than %f", min_distance);
+
     // Loop through all collision groups
     for (std::vector< std::vector<RobotState::CollisionBody> >::iterator itrGroup = robot_state_->robot_.groups.begin(); itrGroup != robot_state_->robot_.groups.end(); ++itrGroup)
     {
@@ -419,7 +422,7 @@ void CollisionAvoidance::selfCollisionFast(std::vector<Distance2> &min_distances
             cdata.robotState = robot_state_;
             cdata.verbose = true;
             cdata.request.enable_nearest_points = true;
-            cdata.result.min_distance = ca_param_.self_collision.d_threshold;
+            cdata.result.min_distance = min_distance;
 
             selfCollisionManager.distance(currentBody.fcl_object.get(), &cdata, selfCollisionDistanceFunction);
 
@@ -581,8 +584,10 @@ void CollisionAvoidance::environmentCollisionVWM(std::vector<Distance2> &min_dis
         return;
     }
 
-    WorldPtr world = world_client_->getWorld();
+    double min_distance = ca_param_.environment_collision.d_threshold * ca_param_.environment_collision.visualization_force_factor;
+    ROS_INFO_ONCE_NAMED("CollisionAvoidance", "environmentCollision: ignoring environment distances bigger than %f", min_distance);
 
+    WorldPtr world = world_client_->getWorld();
     fcl::BroadPhaseCollisionManager *manager = world->getCollisionManager();
 
     /// for each RobotState::CollisionBody, get a minimum distance to the world
@@ -595,7 +600,7 @@ void CollisionAvoidance::environmentCollisionVWM(std::vector<Distance2> &min_dis
 
             DistanceData cdata;
             cdata.request.enable_nearest_points = true;
-            cdata.result.min_distance = ca_param_.environment_collision.d_threshold;
+            cdata.result.min_distance = min_distance;
 
             manager->distance(collisionBody.fcl_object.get(), &cdata, environmentCollisionDistanceFunction);
 

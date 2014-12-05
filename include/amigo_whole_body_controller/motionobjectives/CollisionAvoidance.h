@@ -121,6 +121,7 @@ public:
             double d_threshold;
             int order;
             double octomap_resolution;
+            double visualization_force_factor;
         } ;
         Parameters self_collision;
         Parameters environment_collision;
