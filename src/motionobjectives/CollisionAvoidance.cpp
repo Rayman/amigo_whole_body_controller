@@ -393,7 +393,7 @@ bool selfCollisionDistanceFunction(fcl::CollisionObject* co_other, fcl::Collisio
     dist = result.min_distance;
 
     if(dist <= 0) {
-        ROS_WARN("\ttouch between %s and %s", link_self->frame_id.c_str(), link_other->frame_id.c_str());
+        ROS_WARN_THROTTLE(1, "\ttouch between %s and %s", link_self->frame_id.c_str(), link_other->frame_id.c_str());
         return true; // in collision or in touch
     }
 
