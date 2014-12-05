@@ -30,14 +30,14 @@
     <include file="$(find amigo_launch_files)/launch/manipulation/grippers.launch"/>
 
     <!-- RGBD (Kinect) server -->
-    <include file="$(find rgbd)/launch/top_kinect_server.launch" />
+    <!-- <include file="$(find rgbd)/launch/top_kinect_server.launch" /> -->
 
     <!-- World Model -->
-    <node name="ed_server" pkg="ed" type="ed_server" args="$(find ed)/config/config_amigo.yml" output="screen" />
+    <!-- <node name="ed_server" pkg="ed" type="ed_server" args="$(find ed)/config/config_amigo.yml" output="screen" /> -->
 
     <!-- Reasoner -->
-    <param name="/reasoner/world_model_type" value="ed"/>
-    <include file="$(find tue_reasoner_core)/launch/start.launch" />
+    <!-- <param name="/reasoner/world_model_type" value="ed"/> -->
+    <!-- <include file="$(find tue_reasoner_core)/launch/start.launch" /> -->
 
     <!-- Start text to speech -->
     <!-- <include file="$(find amigo_launch_files)/launch/interaction/text_to_speech.launch" /> -->
@@ -49,7 +49,7 @@
     <!-- <include file="$(find amigo_launch_files)/launch/interaction/speech_interpreter.launch" />  -->
 
     <!-- Action server -->
-    <node name="action_server" pkg="action_server" type="action_server_main" output="screen" />
-    <node name="action_server_py" pkg="action_server" type="main.py" output="screen" />
+    <!-- <node name="action_server" pkg="action_server" type="action_server_main" output="screen" /> -->
+    <!-- <node name="action_server_py" pkg="action_server" type="main.py" output="screen" /> -->
 
 </launch>
