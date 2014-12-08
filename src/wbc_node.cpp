@@ -9,6 +9,7 @@ WholeBodyControllerNode::WholeBodyControllerNode (ros::Rate &loop_rate)
       robot_interface(&wholeBodyController_),
       jte(&wholeBodyController_),
       motion_objective_server_(private_nh, "/add_motion_objective", false),
+      feedback_counter(0),
       ca_param(loadCollisionAvoidanceParameters()),
       collision_avoidance(ca_param, loop_rate.expectedCycleTime().toSec()),
       world_client_(0),
@@ -155,6 +156,11 @@ void WholeBodyControllerNode::cancelCB(MotionObjectiveServer::GoalHandle handle)
 void WholeBodyControllerNode::update() {
 
     // publish feedback for all motion objectives
+
+    // actionlib fix: publish only one feedback message each spin
+    feedback_counter = ++feedback_counter % goal_map.count();
+    int i = 0;
+
     for(GoalMotionObjectiveMap::iterator it = goal_map.begin(); it != goal_map.end(); ++it)
     {
         MotionObjectiveServer::GoalHandle &handle = it->second.first;
@@ -162,7 +168,9 @@ void WholeBodyControllerNode::update() {
 
         MotionObjectiveServer::Feedback feedback;
         feedback.status_code.status = motion_objective->getStatus();
-        handle.publishFeedback(feedback);
+
+        if (i++ == feedback_counter)
+            handle.publishFeedback(feedback);
     }
 
     // Set base pose in whole-body controller (remaining joints are set implicitly in the callback functions in robot_interface)

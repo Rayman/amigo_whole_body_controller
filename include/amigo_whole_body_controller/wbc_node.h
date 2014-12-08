@@ -37,6 +37,8 @@ class WholeBodyControllerNode {
     typedef std::map<std::string, std::pair<MotionObjectiveServer::GoalHandle, MotionObjectivePtr> > GoalMotionObjectiveMap;
     GoalMotionObjectiveMap goal_map;
 
+    int feedback_counter;
+
     /// Motion objectives
 
     CollisionAvoidance::collisionAvoidanceParameters ca_param;
