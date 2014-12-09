@@ -26,14 +26,16 @@
     <!-- <include file="$(find amigo_launch_files)/launch/manipulation/manipulation.launch" /> -->
     <include file="$(find amigo_launch_files)/launch/manipulation/grasp_precompute_action.launch"/>
 
-    <!-- Gripper -->
-    <include file="$(find amigo_launch_files)/launch/manipulation/grippers.launch"/>
+	<!-- Gripper -->
+    <include file="$(find amigo_launch_files)/launch/manipulation/grippers.launch">
+        <arg name="machine" value="$(arg machine)"/>
+    </include>
 
     <!-- RGBD (Kinect) server -->
-    <!-- <include file="$(find rgbd)/launch/top_kinect_server.launch" /> -->
+    <!-- <include file="$(find amigo_launch_files)/launch/sensors/top_kinect_rgbd.launch" /> -->
 
     <!-- World Model -->
-    <!-- <node name="ed_server" pkg="ed" type="ed_server" args="$(find ed)/config/config_amigo.yml" output="screen" /> -->
+	<!-- <node name="ed_server" pkg="ed" type="ed_server" args="$(find ed)/config/$(optenv ED_CONFIG amigo).yaml" output="screen" /> -->
 
     <!-- Reasoner -->
     <!-- <param name="/reasoner/world_model_type" value="ed"/> -->
@@ -43,7 +45,7 @@
     <!-- <include file="$(find amigo_launch_files)/launch/interaction/text_to_speech.launch" /> -->
 
     <!-- Start speech recognition -->
-    <!-- <include file="$(find amigo_launch_files)/launch/interaction/speech_recognition.launch" />  -->
+    <!-- <include ns="amigo" file="$(find amigo_launch_files)/launch/interaction/df_speech_recognition.launch" /> -->
 
     <!-- Start speech interpreter -->
     <!-- <include file="$(find amigo_launch_files)/launch/interaction/speech_interpreter.launch" />  -->
