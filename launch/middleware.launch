@@ -27,9 +27,7 @@
     <include file="$(find amigo_launch_files)/launch/manipulation/grasp_precompute_action.launch"/>
 
 	<!-- Gripper -->
-    <include file="$(find amigo_launch_files)/launch/manipulation/grippers.launch">
-        <arg name="machine" value="$(arg machine)"/>
-    </include>
+    <include file="$(find amigo_launch_files)/launch/manipulation/grippers.launch" />
 
     <!-- RGBD (Kinect) server -->
     <!-- <include file="$(find amigo_launch_files)/launch/sensors/top_kinect_rgbd.launch" /> -->
