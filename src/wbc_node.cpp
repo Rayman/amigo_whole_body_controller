@@ -68,7 +68,7 @@ wbc::CollisionAvoidance::collisionAvoidanceParameters WholeBodyControllerNode::l
     n.param<double> (ns+"/environment_collision/F_max",                         ca_param.environment_collision.f_max, 1.0);
     n.param<double> (ns+"/environment_collision/d_threshold",                   ca_param.environment_collision.d_threshold, 1.0);
     n.param<int>    (ns+"/environment_collision/order",                         ca_param.environment_collision.order, 1);
-    n.param<double> (ns+"/environment_collision/visualization_force_factor",    ca_param.self_collision.visualization_force_factor, 1.0);
+    n.param<double> (ns+"/environment_collision/visualization_force_factor",    ca_param.environment_collision.visualization_force_factor, 1.0);
 
     n.getParam("/map_3d/resolution", ca_param.environment_collision.octomap_resolution);
 
