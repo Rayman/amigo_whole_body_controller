@@ -72,6 +72,9 @@ wbc::CollisionAvoidance::collisionAvoidanceParameters WholeBodyControllerNode::l
 
     n.getParam("/map_3d/resolution", ca_param.environment_collision.octomap_resolution);
 
+    assert(ca_param.self_collision.visualization_force_factor >= 1.0);
+    assert(ca_param.environment_collision.visualization_force_factor >= 1.0);
+
     return ca_param;
 }
 
