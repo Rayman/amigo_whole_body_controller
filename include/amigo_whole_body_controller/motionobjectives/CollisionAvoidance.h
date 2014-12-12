@@ -355,6 +355,6 @@ protected:
     StatsPublisher statsPublisher_;
 };
 
-#endif
-
 } // namespace
+
+#endif
