@@ -58,14 +58,15 @@ public:
             } dimensions;
         } collision_shape;
         std::string frame_id;
-        KDL::Frame fk_pose;
-        KDL::Frame fix_pose;
+        KDL::Frame fk_pose;  // Link pose in MAP frame
+        KDL::Frame fix_pose; // Delta transform from fk_pose to collision shape
 
 #ifdef USE_BULLET
         btTransform bt_transform;
         btConvexShape* bt_shape;
 #endif
 #ifdef USE_FCL
+        // Collision shape in MAP frame (fk_pose + fix_pose)
         boost::shared_ptr<fcl::CollisionObject> fcl_object;
 #endif
 
