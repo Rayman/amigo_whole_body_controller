@@ -161,7 +161,7 @@ void WholeBodyControllerNode::update() {
     // publish feedback for all motion objectives
 
     // actionlib fix: publish only one feedback message each spin
-    feedback_counter = (feedback_counter == goal_map.size()-1) ? 0 : feedback_counter+1;
+    feedback_counter = (feedback_counter >= goal_map.size()-1) ? 0 : feedback_counter+1;
     int i = 0;
 
     for(GoalMotionObjectiveMap::iterator it = goal_map.begin(); it != goal_map.end(); ++it)
