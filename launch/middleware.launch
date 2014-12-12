@@ -43,7 +43,14 @@
     <!-- <include file="$(find amigo_launch_files)/launch/interaction/text_to_speech.launch" /> -->
 
     <!-- Start speech recognition -->
-    <!-- <include ns="amigo" file="$(find amigo_launch_files)/launch/interaction/df_speech_recognition.launch" /> -->
+    <!--
+    <group if="$(arg ROBOT_REAL)">
+        <include file="$(find amigo_launch_files)/launch/interaction/df_speech_recognition.launch" />	
+    </group>
+    <group unless="$(arg ROBOT_REAL)">
+        <include file="$(find amigo_launch_files)/launch/interaction/df_speech_recognition_dummy.launch" />	
+    </group>
+    -->
 
     <!-- Start speech interpreter -->
     <!-- <include file="$(find amigo_launch_files)/launch/interaction/speech_interpreter.launch" />  -->
