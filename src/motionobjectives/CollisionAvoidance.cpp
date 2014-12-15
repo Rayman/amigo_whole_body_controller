@@ -562,19 +562,24 @@ void CollisionAvoidance::environmentCollision(std::vector<Distance> &min_distanc
 #ifdef USE_FCL
 bool environmentCollisionDistanceFunction(fcl::CollisionObject* co_other, fcl::CollisionObject* co_self, void* cdata_, fcl::FCL_REAL& dist)
 {
-  DistanceData* cdata = static_cast<DistanceData*>(cdata_);
-  const fcl::DistanceRequest& request = cdata->request;
-  fcl::DistanceResult& result = cdata->result;
+    DistanceData* cdata = static_cast<DistanceData*>(cdata_);
+    const fcl::DistanceRequest& request = cdata->request;
+    fcl::DistanceResult& result = cdata->result;
 
-  if(cdata->done) { dist = result.min_distance; return true; }
+    if(cdata->done) { dist = result.min_distance; return true; }
 
-  fcl::distance(co_self, co_other, request, result);
+    fcl::DistanceResult distance_result;
+    distance(co_self, co_other, request, distance_result);
 
-  dist = result.min_distance;
+    if (distance_result.min_distance < result.min_distance) {
+        result = distance_result;
+//        dist = result.min_distance;
+    }
 
-  if(dist <= 0) return true; // in collision or in touch
+    if(dist <= 0) return true; // in collision or in touch
 
-  return cdata->done;
+    assert(!cdata->done);
+    return cdata->done;
 }
 
 void CollisionAvoidance::environmentCollisionVWM(std::vector<Distance2> &min_distances) {
