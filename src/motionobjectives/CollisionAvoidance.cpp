@@ -403,6 +403,7 @@ bool selfCollisionDistanceFunction(fcl::CollisionObject* co_other, fcl::Collisio
 void CollisionAvoidance::selfCollisionFast(std::vector<Distance2> &min_distances)
 {
     double min_distance = ca_param_.self_collision.d_threshold * ca_param_.self_collision.visualization_force_factor;
+    assert(min_distance >= ca_param_.self_collision.d_threshold && min_distance > 0);
     ROS_INFO_ONCE_NAMED("CollisionAvoidance", "selfCollision: ignoring distances bigger than %f", min_distance);
 
     // Loop through all collision groups
@@ -590,6 +591,7 @@ void CollisionAvoidance::environmentCollisionVWM(std::vector<Distance2> &min_dis
     }
 
     double min_distance = ca_param_.environment_collision.d_threshold * ca_param_.environment_collision.visualization_force_factor;
+    assert(min_distance >= ca_param_.environment_collision.d_threshold && min_distance > 0);
     ROS_INFO_ONCE_NAMED("CollisionAvoidance", "environmentCollision: ignoring environment distances bigger than %f", min_distance);
 
     WorldPtr world = world_client_->getWorld();
