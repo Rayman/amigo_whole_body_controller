@@ -264,6 +264,7 @@ void CartesianImpedance::apply(RobotState &robotstate) {
 
     /// Get end effector pose (this is in map frame)
     std::map<std::string, KDL::Frame>::iterator itrFK = robotstate.fk_poses_.find(tip_frame_);
+    assert(itrFK != robotstate.fk_poses_.end());
     KDL::Frame frame_map_tip  = (*itrFK).second;
     //std::cout << "Frame tip in map: x = " << frame_map_tip.p.x() << ", y = " << frame_map_tip.p.y() << ", z = " << frame_map_tip.p.z() << std::endl;
 
@@ -273,6 +274,7 @@ void CartesianImpedance::apply(RobotState &robotstate) {
 
     /// Get the pose of the root frame (of the goal) in map
     std::map<std::string, KDL::Frame>::iterator itrRF = robotstate.fk_poses_.find(root_frame_);
+    assert(itrRF != robotstate.fk_poses_.end());
     KDL::Frame frame_map_root = itrRF->second;
     //double r, p, y;frame_map_root.M.GetRPY(r,p,y);
     //std::cout << "Frame root in map: x = " << frame_map_root.p.x() << ", y = " << frame_map_root.p.y() << ", z = " << frame_map_root.p.z() <<
@@ -335,6 +337,7 @@ void CartesianImpedance::apply(RobotState &robotstate) {
 
     /// Change base: the Jacobian is computed w.r.t. base_link instead of map, while the force is expressed in map
     std::map<std::string, KDL::Frame>::iterator itrBLF = robotstate.fk_poses_.find("base_link"); //ToDo: don't hardcode???
+    assert(itrBLF != robotstate.fk_poses_.end());
     KDL::Frame BaseFrame_in_map = itrBLF->second;
     partial_jacobian.changeBase(BaseFrame_in_map.M);
     //for (unsigned int i = 0; i < robotstate.getNrJoints(); i++) std::cout << "Jacobian (3," << i+1 << ") = " << partial_jacobian.data(2,i) << std::endl;
