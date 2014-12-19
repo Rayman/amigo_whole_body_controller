@@ -274,6 +274,9 @@ void CartesianImpedance::apply(RobotState &robotstate) {
 
     /// Get the pose of the root frame (of the goal) in map
     std::map<std::string, KDL::Frame>::iterator itrRF = robotstate.fk_poses_.find(root_frame_);
+    if (itrRF == robotstate.fk_poses_.end()) {
+        ROS_ERROR("FK of root_frame %s not found", root_frame_.c_str());
+    }
     assert(itrRF != robotstate.fk_poses_.end());
     KDL::Frame frame_map_root = itrRF->second;
     //double r, p, y;frame_map_root.M.GetRPY(r,p,y);
