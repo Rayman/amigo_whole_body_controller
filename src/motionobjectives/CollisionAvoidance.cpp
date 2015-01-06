@@ -21,7 +21,8 @@
 #define GEOM_SPHERE_seg     8
 #define GEOM_SPHERE_ring    8
 
-//#define VERBOSE_COLLISION_CHECKS
+//#define VERBOSE_SELFCOLLISION_CHECKS
+//#define VERBOSE_ENVIRONMENTCOLLISION_CHECKS
 
 
 namespace wbc {
@@ -328,7 +329,7 @@ bool selfCollisionDistanceFunction(fcl::CollisionObject* co_other, fcl::Collisio
 
     // do not collision check geoms part of the same object / link / attached body
     if (cgd_self->sameObject(*cgd_other)) {
-#ifdef VERBOSE_COLLISION_CHECKS
+#ifdef VERBOSE_SELFCOLLISION_CHECKS
         ROS_INFO("\tskip collision the same link");
 #endif
         return false;
@@ -357,7 +358,7 @@ bool selfCollisionDistanceFunction(fcl::CollisionObject* co_other, fcl::Collisio
     assert(group_other != cdata->robotState->robot_.groups.end());
 
     if (group_self == group_other) {
-#ifdef VERBOSE_COLLISION_CHECKS
+#ifdef VERBOSE_SELFCOLLISION_CHECKS
         ROS_INFO("\tskip collision in same group between %s and %s", link_self->frame_id.c_str(), link_other->frame_id.c_str());
 #endif
         return false;
@@ -370,7 +371,7 @@ bool selfCollisionDistanceFunction(fcl::CollisionObject* co_other, fcl::Collisio
         if ( (link_self->name_collision_body == excluded_bodies.name_body_A && link_other->name_collision_body == excluded_bodies.name_body_B)
           || (link_self->name_collision_body == excluded_bodies.name_body_B && link_other->name_collision_body == excluded_bodies.name_body_A) )
         {
-#ifdef VERBOSE_COLLISION_CHECKS
+#ifdef VERBOSE_SELFCOLLISION_CHECKS
             ROS_INFO("\texcluded collision check between %s and %s", link_self->frame_id.c_str(), link_other->frame_id.c_str());
 #endif
             return false;
@@ -382,7 +383,7 @@ bool selfCollisionDistanceFunction(fcl::CollisionObject* co_other, fcl::Collisio
 
     fcl::distance(co_self, co_other, request, result);
 
-#ifdef VERBOSE_COLLISION_CHECKS
+#ifdef VERBOSE_SELFCOLLISION_CHECKS
     if (dist >= FLT_MAX) {
         ROS_INFO("\tcollision between %15s and %15s, inf  -> %2.3f",  link_self->frame_id.c_str(), link_other->frame_id.c_str(), result.min_distance);
     } else {
@@ -415,7 +416,7 @@ void CollisionAvoidance::selfCollisionFast(std::vector<Distance2> &min_distances
             // Loop through al the bodies of the group
             RobotState::CollisionBody &currentBody = *itrBody;
 
-#ifdef VERBOSE_COLLISION_CHECKS
+#ifdef VERBOSE_SELFCOLLISION_CHECKS
             ROS_INFO("selfcollision for %s", currentBody.frame_id.c_str());
 #endif
 
@@ -569,8 +570,22 @@ bool environmentCollisionDistanceFunction(fcl::CollisionObject* co_other, fcl::C
 
     if(cdata->done) { dist = result.min_distance; return true; }
 
+    const CollisionGeometryData* cgd_self  = static_cast<const CollisionGeometryData*>(co_self ->getCollisionGeometry()->getUserData());
+    const CollisionGeometryData* cgd_other = static_cast<const CollisionGeometryData*>(co_other->getCollisionGeometry()->getUserData());
+
+    const RobotState::CollisionBody *link_self  = cgd_self ->ptr.link;
+    //const RobotState::CollisionBody *link_other = cgd_other->ptr.link;
+
     fcl::DistanceResult distance_result;
     fcl::distance(co_self, co_other, request, distance_result);
+
+#ifdef VERBOSE_ENVIRONMENTCOLLISION_CHECKS
+    if (dist >= FLT_MAX) {
+        ROS_INFO("\tcollision between %15s and %15s, inf  -> %2.3f",  "environment", link_self->frame_id.c_str(), distance_result.min_distance);
+    } else {
+        ROS_INFO("\tcollision between %15s and %15s, %2.3f -> %2.3f", "environment", link_self->frame_id.c_str(), dist, distance_result.min_distance);
+    }
+#endif
 
     if (distance_result.min_distance < result.min_distance) {
         result = distance_result;
@@ -604,6 +619,10 @@ void CollisionAvoidance::environmentCollisionVWM(std::vector<Distance2> &min_dis
         for (std::vector<RobotState::CollisionBody>::iterator itrBodies = group.begin(); itrBodies != group.end(); ++itrBodies)
         {
             RobotState::CollisionBody &collisionBody = *itrBodies;
+
+#ifdef VERBOSE_ENVIRONMENTCOLLISION_CHECKS
+            ROS_INFO("environmentcollision for %s", collisionBody.frame_id.c_str());
+#endif
 
             DistanceData cdata;
             cdata.request.enable_nearest_points = true;
