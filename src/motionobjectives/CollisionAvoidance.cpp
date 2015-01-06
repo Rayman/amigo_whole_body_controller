@@ -74,6 +74,7 @@ bool CollisionAvoidance::initialize(RobotState &robotstate)
     robot_state_ = &robotstate;
 
     ROS_INFO_STREAM("Initializing Obstacle Avoidance, ");
+    ROS_INFO_STREAM("using fcl version " << FCL_VERSION);
 
     // Get node handle
     ros::NodeHandle n("~");
