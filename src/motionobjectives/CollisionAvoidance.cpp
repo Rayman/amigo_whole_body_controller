@@ -590,7 +590,7 @@ bool environmentCollisionDistanceFunction(fcl::CollisionObject* co_other, fcl::C
 
     if (distance_result.min_distance < result.min_distance) {
         result = distance_result;
-        dist = result.min_distance;
+//        dist = result.min_distance;
     }
 
     if(dist <= 0) return true; // in collision or in touch
