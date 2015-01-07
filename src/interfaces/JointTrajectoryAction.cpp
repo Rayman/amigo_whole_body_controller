@@ -144,6 +144,9 @@ void JointTrajectoryAction::update() {
             /// Check if this joint has converged
             if(trajectory_index_ < ((int)active_goal_.trajectory.points.size()-1))
             {
+//                ROS_DEBUG_NAMED("JTA", "JTA: intermediate constraints check %f < %f",
+//                                abs_error,
+//                                intermediate_goal_constraints_[joint_name]);
                 if(abs_error < intermediate_goal_constraints_[joint_name])
                 {
                     converged_joints += 1;
@@ -151,6 +154,9 @@ void JointTrajectoryAction::update() {
             }
             else
             {
+//                ROS_DEBUG_NAMED("JTA", "JTA: final constraints check %f < %f",
+//                                abs_error,
+//                                final_goal_constraints_[joint_name]);
                 if(abs_error < final_goal_constraints_[joint_name])
                 {
                     converged_joints += 1;
@@ -164,7 +170,7 @@ void JointTrajectoryAction::update() {
         /// Check whether all joints of this point have converged
         if (converged_joints == active_goal_.trajectory.joint_names.size() && converged_joints != 0)
         {
-            ROS_INFO_NAMED("JTA", "JTA: all joints converged for trajectory point %ui", trajectory_index_);
+            ROS_INFO_NAMED("JTA", "JTA: all joints converged for trajectory point %u", trajectory_index_);
             trajectory_index_ += 1;
         }
 
