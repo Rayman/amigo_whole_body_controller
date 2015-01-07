@@ -137,9 +137,6 @@ void JointTrajectoryAction::update() {
                 //        ROS_WARN_NAMED("JTA", "JTA: Error joint %s = %f exceeds final joint contraint (%f)",joint_names_[j].c_str(),ref_pos_[j] - cur_pos_[j],final_goal_constraints_[joint_names_[j]]);
                 //    }
             }
-            setAborted();
-            is_active_=false;
-            return;
 
             /// Check if this joint has converged
             if(trajectory_index_ < ((int)active_goal_.trajectory.points.size()-1))
