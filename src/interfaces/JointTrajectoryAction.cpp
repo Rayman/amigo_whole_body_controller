@@ -17,7 +17,7 @@ JointTrajectoryAction::~JointTrajectoryAction() {
 
 bool JointTrajectoryAction::initialize() {
 
-    ROS_INFO("JTE: Initializing");
+    ROS_INFO_NAMED("JTA", "JTA: Initializing");
     trajectory_index_ = 0;
 
     ros::NodeHandle n;
@@ -45,12 +45,12 @@ bool JointTrajectoryAction::initialize() {
     XmlRpc::XmlRpcValue joint_names;
     if (!nh.getParam("joint_names", joint_names))
     {
-        ROS_FATAL("No joints given. (namespace: %s)", nh.getNamespace().c_str());
+        ROS_FATAL_NAMED("JTA", "JTA: No joints given. (namespace: %s)", nh.getNamespace().c_str());
         exit(1);
     }
     if (joint_names.getType() != XmlRpc::XmlRpcValue::TypeArray)
     {
-        ROS_FATAL("Malformed joint specification.  (namespace: %s)", nh.getNamespace().c_str());
+        ROS_FATAL_NAMED("JTA", "JTA: Malformed joint specification.  (namespace: %s)", nh.getNamespace().c_str());
         exit(1);
     }
     for (int i = 0; i < joint_names.size(); ++i)
@@ -58,7 +58,7 @@ bool JointTrajectoryAction::initialize() {
         XmlRpcValue &name_value = joint_names[i];
         if (name_value.getType() != XmlRpcValue::TypeString)
         {
-            ROS_FATAL("Array of joint names should contain all strings.  (namespace: %s)",
+            ROS_FATAL_NAMED("JTA", "JTA: Array of joint names should contain all strings.  (namespace: %s)",
                       nh.getNamespace().c_str());
             exit(1);
         }
@@ -81,7 +81,7 @@ bool JointTrajectoryAction::initialize() {
         intermediate_goal_constraints_[joint_names_[i]] = ig;
         final_goal_constraints_[joint_names_[i]] = fg;
         trajectory_constraints_[joint_names_[i]] = t;
-        ROS_DEBUG("JTE: %s\t [%f,\t%f,\t%f]",joint_names_[i].c_str(),ig,fg,t);
+        ROS_DEBUG_NAMED("JTA", "JTA: %s\t [%f,\t%f,\t%f]",joint_names_[i].c_str(),ig,fg,t);
     }
 /*
     // Check if it works
@@ -99,9 +99,9 @@ bool JointTrajectoryAction::initialize() {
             double fg = diter->second;
             diter  = trajectory_constraints_.find(joint_name);
             double t = diter->second;
-            ROS_DEBUG("%s\t [%f,\t%f,\t%f]",joint_name.c_str(),ig,fg,t);
+            ROS_DEBUG_NAMED("JTA", "JTA: %s\t [%f,\t%f,\t%f]",joint_name.c_str(),ig,fg,t);
         } else {
-            ROS_ERROR("Something went terribly wrong");
+            ROS_ERROR_NAMED("JTA", "JTA: Something went terribly wrong");
         }
     }
 */
@@ -128,13 +128,13 @@ void JointTrajectoryAction::update() {
 
             /// Check trajectory constraints
             if(abs_error > trajectory_constraints_[joint_name]) {
-                ROS_WARN("Aborting because the trajectory constraint was violated");
+                WARN("Aborting because the trajectory constraint was violated");
                 //for (unsigned int j = 0; j < number_of_goal_joints_; j++) {
                 //    if ( fabs(ref_pos_[j] - cur_pos_[j]) > intermediate_goal_constraints_[joint_names_[j]]) {
-                //        ROS_WARN("Error joint %s = %f exceeds intermediate joint constraint (%f)",joint_names_[j].c_str(),ref_pos_[j] - cur_pos_[j],intermediate_goal_constraints_[joint_names_[j]]);
+                //        ROS_WARN_NAMED("JTA", "JTA: Error joint %s = %f exceeds intermediate joint constraint (%f)",joint_names_[j].c_str(),ref_pos_[j] - cur_pos_[j],intermediate_goal_constraints_[joint_names_[j]]);
                 //    }
                 //    else if ( fabs(ref_pos_[j] - cur_pos_[j]) > final_goal_constraints_[joint_names_[j]]) {
-                //        ROS_WARN("Error joint %s = %f exceeds final joint contraint (%f)",joint_names_[j].c_str(),ref_pos_[j] - cur_pos_[j],final_goal_constraints_[joint_names_[j]]);
+                //        ROS_WARN_NAMED("JTA", "JTA: Error joint %s = %f exceeds final joint contraint (%f)",joint_names_[j].c_str(),ref_pos_[j] - cur_pos_[j],final_goal_constraints_[joint_names_[j]]);
                 //    }
             }
             setAborted();
@@ -164,12 +164,14 @@ void JointTrajectoryAction::update() {
         /// Check whether all joints of this point have converged
         if (converged_joints == active_goal_.trajectory.joint_names.size())
         {
+            ROS_INFO_NAMED("all joints converged for trajectory point %i", trajectory_index_);
             trajectory_index_ += 1;
         }
 
         /// Check whether the final goal is achieved
         if (trajectory_index_ == active_goal_.trajectory.points.size())
         {
+            ROS_INFO_NAMED("JTA", "JTA: trajectory");
             setSucceeded();
             is_active_ = false;
         }
@@ -178,7 +180,7 @@ void JointTrajectoryAction::update() {
 
 void JointTrajectoryAction::goalCB() {
 
-    ROS_INFO("Received new joint goal");
+    ROS_INFO_NAMED("JTA", "JTA: Received new joint goal");
     trajectory_index_ = 0;
     goal_reception_time_ = ros::Time::now();
 
@@ -188,7 +190,7 @@ void JointTrajectoryAction::goalCB() {
 
     if (!setJointPositions())
     {
-        ROS_ERROR("Cannot set desired joint positions");
+        ROS_ERROR_NAMED("JTA", "JTA: Cannot set desired joint positions");
         server_->setAborted();
     }
 
@@ -196,7 +198,7 @@ void JointTrajectoryAction::goalCB() {
 
 void JointTrajectoryAction::goalCBLeft() {
 
-    ROS_INFO("Received new joint goal");
+    ROS_INFO_NAMED("JTA", "JTA: Received new joint goal");
     trajectory_index_ = 0;
     goal_reception_time_ = ros::Time::now();
 
@@ -207,14 +209,14 @@ void JointTrajectoryAction::goalCBLeft() {
     /// Remove motion objective because this will typically be conflicting
     /// Although not really neat, this is how our executives are set up
     std::vector<MotionObjective*> imps_to_remove = wbc_->getCartesianImpedances("grippoint_left", "");
-    ROS_DEBUG("Removing %i impedances",(int)imps_to_remove.size());
+    ROS_DEBUG_NAMED("JTA", "JTA: Removing %i impedances",(int)imps_to_remove.size());
     for (unsigned int i = 0; i < imps_to_remove.size(); i++) {
         wbc_->removeMotionObjective(imps_to_remove[i]);
     }
 
     if (!setJointPositions())
     {
-        ROS_ERROR("Cannot set desired joint positions");
+        ROS_ERROR_NAMED("JTA", "JTA: Cannot set desired joint positions");
         server_left_->setAborted();
     }
 
@@ -222,7 +224,7 @@ void JointTrajectoryAction::goalCBLeft() {
 
 void JointTrajectoryAction::goalCBRight() {
 
-    ROS_INFO("Received new joint goal");
+    ROS_INFO_NAMED("JTA", "JTA: Received new joint goal");
     trajectory_index_ = 0;
     goal_reception_time_ = ros::Time::now();
 
@@ -233,14 +235,14 @@ void JointTrajectoryAction::goalCBRight() {
     /// Remove motion objective because this will typically be conflicting
     /// Although not really neat, this is how our executives are set up
     std::vector<MotionObjective*> imps_to_remove = wbc_->getCartesianImpedances("grippoint_right", "");
-    ROS_DEBUG("Removing %i impedances",(int)imps_to_remove.size());
+    ROS_DEBUG_NAMED("JTA", "JTA: Removing %i impedances",(int)imps_to_remove.size());
     for (unsigned int i = 0; i < imps_to_remove.size(); i++) {
         wbc_->removeMotionObjective(imps_to_remove[i]);
     }
 
     if (!setJointPositions())
     {
-        ROS_ERROR("Cannot set desired joint positions");
+        ROS_ERROR_NAMED("JTA", "JTA: Cannot set desired joint positions");
         server_right_->setAborted();
     }
 
@@ -274,7 +276,7 @@ void JointTrajectoryAction::setAborted()
 
 bool JointTrajectoryAction::setJointPositions()
 {
-    ROS_DEBUG("JTE: Setting joint positions");
+    ROS_DEBUG_NAMED("JTA", "JTA: Setting joint positions");
     /// Loop over joints
     for (unsigned i = 0; i < active_goal_.trajectory.joint_names.size(); i++)
     {
