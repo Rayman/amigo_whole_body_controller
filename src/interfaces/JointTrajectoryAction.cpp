@@ -128,7 +128,7 @@ void JointTrajectoryAction::update() {
 
             /// Check trajectory constraints
             if(abs_error > trajectory_constraints_[joint_name]) {
-                WARN("Aborting because the trajectory constraint was violated");
+                ROS_WARN_NAMED("JTA", "JTA: Aborting because the trajectory constraint was violated");
                 //for (unsigned int j = 0; j < number_of_goal_joints_; j++) {
                 //    if ( fabs(ref_pos_[j] - cur_pos_[j]) > intermediate_goal_constraints_[joint_names_[j]]) {
                 //        ROS_WARN_NAMED("JTA", "JTA: Error joint %s = %f exceeds intermediate joint constraint (%f)",joint_names_[j].c_str(),ref_pos_[j] - cur_pos_[j],intermediate_goal_constraints_[joint_names_[j]]);
@@ -162,16 +162,16 @@ void JointTrajectoryAction::update() {
         }
 
         /// Check whether all joints of this point have converged
-        if (converged_joints == active_goal_.trajectory.joint_names.size())
+        if (converged_joints == active_goal_.trajectory.joint_names.size() && converged_joints != 0)
         {
-            ROS_INFO_NAMED("all joints converged for trajectory point %i", trajectory_index_);
+            ROS_INFO_NAMED("JTA", "JTA: all joints converged for trajectory point %ui", trajectory_index_);
             trajectory_index_ += 1;
         }
 
         /// Check whether the final goal is achieved
-        if (trajectory_index_ == active_goal_.trajectory.points.size())
+        if (trajectory_index_ == active_goal_.trajectory.points.size() && trajectory_index_ != 0)
         {
-            ROS_INFO_NAMED("JTA", "JTA: trajectory");
+            ROS_INFO_NAMED("JTA", "JTA: trajectory fully converged");
             setSucceeded();
             is_active_ = false;
         }
