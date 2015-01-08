@@ -141,7 +141,8 @@ void JointTrajectoryAction::update() {
             /// Check if this joint has converged
             if(trajectory_index_ < ((int)active_goal_.trajectory.points.size()-1))
             {
-//                ROS_DEBUG_NAMED("JTA", "JTA: intermediate constraints check %f < %f",
+//                ROS_DEBUG_NAMED("JTA", "JTA: intermediate constraints check for %s %f < %f",
+//                                joint_name.c_str(),
 //                                abs_error,
 //                                intermediate_goal_constraints_[joint_name]);
                 if(abs_error < intermediate_goal_constraints_[joint_name])
@@ -151,7 +152,8 @@ void JointTrajectoryAction::update() {
             }
             else
             {
-//                ROS_DEBUG_NAMED("JTA", "JTA: final constraints check %f < %f",
+//                ROS_DEBUG_NAMED("JTA", "JTA: final constraints check for %s %f < %f",
+//                                joint_name.c_str(),
 //                                abs_error,
 //                                final_goal_constraints_[joint_name]);
                 if(abs_error < final_goal_constraints_[joint_name])
@@ -159,9 +161,6 @@ void JointTrajectoryAction::update() {
                     converged_joints += 1;
                 }
             }
-
-            /// Set joint position in whole-body controller
-            wbc_->setDesiredJointPosition(joint_name, ref);
         }
 
         /// Check whether all joints of this point have converged
@@ -169,6 +168,11 @@ void JointTrajectoryAction::update() {
         {
             ROS_INFO_NAMED("JTA", "JTA: all joints converged for trajectory point %u", trajectory_index_);
             trajectory_index_ += 1;
+
+            // if we have more points to do, give them to the posture controller
+            if (trajectory_index_ != active_goal_.trajectory.points.size()) {
+                setJointPositions();
+            }
         }
 
         /// Check whether the final goal is achieved
