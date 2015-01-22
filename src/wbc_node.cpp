@@ -13,8 +13,11 @@ WholeBodyControllerNode::WholeBodyControllerNode (ros::Rate &loop_rate)
       ca_param(loadCollisionAvoidanceParameters()),
       collision_avoidance(ca_param, loop_rate.expectedCycleTime().toSec()),
       world_client_(0),
-      omit_admittance(false)
+      omit_admittance(false),
+      listener_(NULL)
 {
+    listener_ = robot_interface.getTransformListener();
+
     motion_objective_server_.registerGoalCallback(
         boost::bind(&WholeBodyControllerNode::goalCB, this, _1)
     );
@@ -90,7 +93,7 @@ void WholeBodyControllerNode::goalCB(MotionObjectiveServer::GoalHandle handle) {
         return;
     }
 
-    CartesianImpedance *cartesian_impedance = new CartesianImpedance(goal->position_constraint.link_name, loop_rate_.expectedCycleTime().toSec());
+    CartesianImpedance *cartesian_impedance = new CartesianImpedance(goal->position_constraint.link_name, loop_rate_.expectedCycleTime().toSec(), listener_);
 
     if (goal->position_constraint.header.frame_id == "") {
         ROS_WARN("the frame_id of the goal is not set");

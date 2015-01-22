@@ -64,6 +64,8 @@ class WholeBodyControllerNode {
 
     void cancelCB(MotionObjectiveServer::GoalHandle handle);
 
+    tf::TransformListener *listener_;
+
 };
 
 } // namespace

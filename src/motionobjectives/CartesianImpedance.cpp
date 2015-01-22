@@ -3,7 +3,7 @@
 #include <tf/transform_datatypes.h>
 #include <ros/node_handle.h>
 
-CartesianImpedance::CartesianImpedance(const std::string& tip_frame, const double Ts) {
+CartesianImpedance::CartesianImpedance(const std::string& tip_frame, const double Ts, tf::TransformListener *tf) {
 
     type_      = "CartesianImpedance";
     tip_frame_ = tip_frame;
