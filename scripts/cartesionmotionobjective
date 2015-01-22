@@ -4,13 +4,14 @@
 Send a Cartesian Motion Objective
 
 Usage:
-  cartesionmotionobjective left  <x> <y> <z> [<roll> <pitch> <yaw>]
-  cartesionmotionobjective right <x> <y> <z> [<roll> <pitch> <yaw>]
+  cartesionmotionobjective left  <x> <y> <z> [<roll> <pitch> <yaw>] [--frame=FRAME]
+  cartesionmotionobjective right <x> <y> <z> [<roll> <pitch> <yaw>] [--frame=FRAME]
   cartesionmotionobjective cancel
   cartesionmotionobjective -h | --help
 
 Options:
-  -h --help     Show this screen.
+  -h --help      Show this screen.
+  --frame=FRAME  Which frame the coordinate is specified in [default: base_link]
 '''
 
 from docopt import docopt
@@ -57,12 +58,12 @@ class CartesianMotionObjective():
         self.action_client.wait_for_server()
         rospy.loginfo("Connected to action server")
 
-    def build_goal(self, link_name, position, orientation):
+    def build_goal(self, link_name, position, orientation, frame_id):
         self.position    = position
         orientation_goal = euler_z_to_orientation_goal(orientation)
 
         position_constraint = PositionConstraint(
-            header=std_msgs.msg.Header(frame_id='base_link'),
+            header=std_msgs.msg.Header(frame_id=frame_id),
             link_name=link_name,
             position=geometry_msgs.msg.Point(*self.position))
 
@@ -105,11 +106,12 @@ class CartesianMotionObjective():
         print 'feedback!!!', code.status
 
 if __name__ == '__main__':
-    arguments = docopt(__doc__, options_first=True)
+    arguments = docopt(__doc__)
+    print arguments
 
     try:
         # disable signals so we can detect a KeyboardInterrupt
-        rospy.init_node('add_motion_objective', anonymous=True, disable_signals=True)
+        rospy.init_node('cartesionmotionobjective', anonymous=True, disable_signals=True)
 
         if arguments['cancel']:
             cmo = CartesianMotionObjective()
@@ -132,8 +134,16 @@ if __name__ == '__main__':
                 'pitch': arguments['<pitch>'] ,
                 'yaw'  : arguments['<yaw>'  ] }
 
+            frame_id = arguments['--frame']
+
+            print 'creating motion objective...'
             cmo = CartesianMotionObjective()
-            cmo.send_goal(cmo.build_goal(link_name=link_name, position=position, orientation=orientation))
+            print 'sending goal...'
+            cmo.send_goal(cmo.build_goal(link_name=link_name,
+                                         position=position,
+                                         orientation=orientation,
+                                         frame_id=frame_id))
+            print 'waiting for result...'
             cmo.wait_for_result()
 
     except KeyboardInterrupt:
