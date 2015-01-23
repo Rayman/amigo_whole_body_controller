@@ -116,6 +116,10 @@ bool CartesianImpedance::initialize(RobotState &robotstate) {
 
     /// Get end effector pose (is in map frame)
     std::map<std::string, KDL::Frame>::iterator itrFK = robotstate.fk_poses_.find(tip_frame_);
+    if (itrFK == robotstate.fk_poses_.end()) {
+        ROS_ERROR("rejecting CartesianImpedance because the tip_frame_ '%s' can not be found", tip_frame_.c_str());
+        return false;
+    }
     KDL::Frame frame_map_tip  = itrFK->second;
 
     /// Include tip offset
@@ -124,6 +128,10 @@ bool CartesianImpedance::initialize(RobotState &robotstate) {
 
     /// Get the pose of the root frame (of the goal) in map
     std::map<std::string, KDL::Frame>::iterator itrRF = robotstate.fk_poses_.find(root_frame_);
+    if (itrRF == robotstate.fk_poses_.end()) {
+        ROS_ERROR("rejecting CartesianImpedance because the root_frame_ '%s' can not be found", root_frame_.c_str());
+        return false;
+    }
     KDL::Frame frame_map_root = itrRF->second;
 
     /// Convert end-effector pose to root

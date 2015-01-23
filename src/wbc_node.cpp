@@ -115,12 +115,13 @@ void WholeBodyControllerNode::goalCB(MotionObjectiveServer::GoalHandle handle) {
 
     if (!wholeBodyController_.addMotionObjective(cartesian_impedance)) {
         ROS_ERROR("Could not initialize cartesian impedance for new motion objective");
-        exit(-1);
+        delete cartesian_impedance;
+        handle.setRejected();
+    } else {
+        // add it to the map
+        goal_map[id] = std::pair<MotionObjectiveServer::GoalHandle, MotionObjectivePtr>(handle, MotionObjectivePtr(cartesian_impedance));
+        handle.setAccepted();
     }
-
-    // add it to the map
-    goal_map[id] = std::pair<MotionObjectiveServer::GoalHandle, MotionObjectivePtr>(handle, MotionObjectivePtr(cartesian_impedance));
-    handle.setAccepted();
 }
 
 void WholeBodyControllerNode::cancelCB(MotionObjectiveServer::GoalHandle handle) {
