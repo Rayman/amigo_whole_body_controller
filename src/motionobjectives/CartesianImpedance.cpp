@@ -80,7 +80,7 @@ void CartesianImpedance::setVelocity(RobotState &robotstate){
 
     /// Get end effector pose (is in map frame)
     std::map<std::string, KDL::Frame>::iterator itrFK = robotstate.fk_poses_.find(tip_frame_);
-    KDL::Frame frame_map_tip  = (*itrFK).second;
+    KDL::Frame frame_map_tip  = itrFK->second;
 
     /// Include tip offset
     frame_map_tip =  frame_map_tip * frame_tip_offset;
@@ -116,7 +116,7 @@ bool CartesianImpedance::initialize(RobotState &robotstate) {
 
     /// Get end effector pose (is in map frame)
     std::map<std::string, KDL::Frame>::iterator itrFK = robotstate.fk_poses_.find(tip_frame_);
-    KDL::Frame frame_map_tip  = (*itrFK).second;
+    KDL::Frame frame_map_tip  = itrFK->second;
 
     /// Include tip offset
     frame_map_tip =  frame_map_tip * frame_tip_offset;
@@ -265,7 +265,7 @@ void CartesianImpedance::apply(RobotState &robotstate) {
     /// Get end effector pose (this is in map frame)
     std::map<std::string, KDL::Frame>::iterator itrFK = robotstate.fk_poses_.find(tip_frame_);
     assert(itrFK != robotstate.fk_poses_.end());
-    KDL::Frame frame_map_tip  = (*itrFK).second;
+    KDL::Frame frame_map_tip  = itrFK->second;
     //std::cout << "Frame tip in map: x = " << frame_map_tip.p.x() << ", y = " << frame_map_tip.p.y() << ", z = " << frame_map_tip.p.z() << std::endl;
 
     /// Include tip offset
