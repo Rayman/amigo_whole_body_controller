@@ -1,9 +1,11 @@
 #include "amigo_whole_body_controller/motionobjectives/CartesianImpedance.h"
 
-#include <tf/transform_datatypes.h>
+#include <tf_conversions/tf_kdl.h>
 #include <ros/node_handle.h>
 
-CartesianImpedance::CartesianImpedance(const std::string& tip_frame, const double Ts, tf::TransformListener *tf) {
+CartesianImpedance::CartesianImpedance(const std::string& tip_frame, const double Ts, tf::TransformListener *listener)
+    : listener_(listener)
+{
 
     type_      = "CartesianImpedance";
     tip_frame_ = tip_frame;
@@ -115,24 +117,22 @@ bool CartesianImpedance::initialize(RobotState &robotstate) {
     robotstate.collectFKSolutions();
 
     /// Get end effector pose (is in map frame)
-    std::map<std::string, KDL::Frame>::iterator itrFK = robotstate.fk_poses_.find(tip_frame_);
-    if (itrFK == robotstate.fk_poses_.end()) {
+    KDL::Frame frame_map_tip;
+    if (!lookupTransform(robotstate, tip_frame_, frame_map_tip)) {
         ROS_ERROR("rejecting CartesianImpedance because the tip_frame_ '%s' can not be found", tip_frame_.c_str());
         return false;
     }
-    KDL::Frame frame_map_tip  = itrFK->second;
 
     /// Include tip offset
     frame_map_tip =  frame_map_tip * frame_tip_offset;
     frame_map_ee_previous_ = frame_map_tip;
 
     /// Get the pose of the root frame (of the goal) in map
-    std::map<std::string, KDL::Frame>::iterator itrRF = robotstate.fk_poses_.find(root_frame_);
-    if (itrRF == robotstate.fk_poses_.end()) {
+    KDL::Frame frame_map_root;
+    if (!lookupTransform(robotstate, root_frame_, frame_map_root)) {
         ROS_ERROR("rejecting CartesianImpedance because the root_frame_ '%s' can not be found", root_frame_.c_str());
         return false;
     }
-    KDL::Frame frame_map_root = itrRF->second;
 
     /// Convert end-effector pose to root
     KDL::Frame frame_root_tip = frame_map_root.Inverse() * frame_map_tip;
@@ -519,4 +519,34 @@ void CartesianImpedance::refGeneration(KDL::Frame& goal, KDL::Frame& ref)
     ref.p.z(ref_generator_[2].getPositionReference());
     ref.M = KDL::Rotation::RPY(ref_generator_[3].getPositionReference(), ref_generator_[4].getPositionReference(), ref_generator_[5].getPositionReference());
 
+}
+
+bool CartesianImpedance::lookupTransform(const RobotState &robotstate, const std::string &in_frame, KDL::Frame &out_frame)
+{
+    std::map<std::string, KDL::Frame>::const_iterator it = robotstate.fk_poses_.find(in_frame);
+
+    /// first try if we already have this transform in the fk_poses_
+    if (it != robotstate.fk_poses_.end()) {
+        out_frame = it->second;
+    } else { /// if that doesn't work, fallback on tf
+        // create a identity transform in the input frame
+        tf::Stamped<tf::Pose> pose_in(tf::Pose::getIdentity(), ros::Time(0), "/amigo/" + in_frame);
+
+        // convert to msg
+        geometry_msgs::PoseStamped stamped_in;
+        tf::poseStampedTFToMsg(pose_in, stamped_in);
+
+        // transform to base_link frame
+        geometry_msgs::PoseStamped stamped_out;
+        try {
+            listener_->transformPose("/map", stamped_in, stamped_out);
+        } catch (tf::TransformException &ex) {
+            ROS_ERROR("%s",ex.what());
+            return false;
+        }
+
+        // output is a KDL frame
+        tf::poseMsgToKDL(stamped_out.pose, out_frame);
+    }    
+    return true;
 }
