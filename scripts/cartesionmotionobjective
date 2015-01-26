@@ -23,10 +23,10 @@ from amigo_whole_body_controller.msg import *
 from arm_navigation_msgs.msg import *
 from tf.transformations import quaternion_from_euler
 
-def euler_z_to_orientation_goal(orientation):
-    roll  = orientation['roll']  or 0
-    pitch = orientation['pitch'] or 0
-    yaw   = orientation['yaw']   or 0
+def euler_z_to_orientation_goal(orientation=None):
+    roll  = orientation[0] if orientation else 0
+    pitch = orientation[0] if orientation else 0
+    yaw   = orientation[0] if orientation else 0
 
     q = geometry_msgs.msg.Quaternion(*quaternion_from_euler(roll, pitch, yaw))
 
@@ -42,15 +42,14 @@ class CartesianMotionObjective():
     stiffnessfactor = 4.0
 
     def __init__(self):
-        self.stiffness   = {
-                'force': (
-                        70.0 * self.stiffnessfactor,
-                        70.0 * self.stiffnessfactor,
-                        50.0 * self.stiffnessfactor),
-                'torque': (
-                        0.0 * self.stiffnessfactor,
-                        0.0 * self.stiffnessfactor,
-                        0.0 * self.stiffnessfactor) }
+        self.force = (
+            70.0 * self.stiffnessfactor,
+            70.0 * self.stiffnessfactor,
+            50.0 * self.stiffnessfactor)
+        self.torque = (
+            5.0 * self.stiffnessfactor,
+            5.0 * self.stiffnessfactor,
+            5.0 * self.stiffnessfactor)
 
         self.action_client = actionlib.SimpleActionClient("add_motion_objective", ArmTaskAction)
         self.action_client.feedback_cb = self.feedback_cb
@@ -62,14 +61,17 @@ class CartesianMotionObjective():
         self.position    = position
         orientation_goal = euler_z_to_orientation_goal(orientation)
 
+        force = self.force
+        torque = self.torque if orientation else (0, 0, 0)
+
         position_constraint = PositionConstraint(
             header=std_msgs.msg.Header(frame_id=frame_id),
             link_name=link_name,
             position=geometry_msgs.msg.Point(*self.position))
 
         stiffness = geometry_msgs.msg.Wrench(
-            force=geometry_msgs.msg.Vector3(*self.stiffness['force']),
-            torque=geometry_msgs.msg.Vector3(*self.stiffness['torque']))
+            force=geometry_msgs.msg.Vector3(*force),
+            torque=geometry_msgs.msg.Vector3(*torque))
 
         goal = ArmTaskGoal(
             goal_type='grasp',
@@ -126,14 +128,16 @@ if __name__ == '__main__':
                     break
 
             position = (
-                float(arguments['<x>']),
-                float(arguments['<y>']),
-                float(arguments['<z>']))
-            orientation = {
-                'roll' : arguments['<roll>' ] ,
-                'pitch': arguments['<pitch>'] ,
-                'yaw'  : arguments['<yaw>'  ] }
-
+                float(arguments['<x>']) ,
+                float(arguments['<y>']) ,
+                float(arguments['<z>']) )
+            if arguments['<roll>']:
+                orientation = (
+                    float(arguments['<roll>' ]) ,
+                    float(arguments['<pitch>']) ,
+                    float(arguments['<yaw>'  ]) )
+            else:
+                orientation = None
             frame_id = arguments['--frame']
 
             print 'creating motion objective...'
