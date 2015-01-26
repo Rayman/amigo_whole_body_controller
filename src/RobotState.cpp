@@ -84,7 +84,7 @@ KDL::Frame RobotState::getFK(const std::string& tip_frame){
 
     /// Get the current FK pose as a geometry msgs
     std::map<std::string, KDL::Frame>::iterator itrFK = fk_poses_.find(tip_frame);
-    KDL::Frame end_effector_pose = (*itrFK).second;
+    KDL::Frame end_effector_pose = itrFK->second;
 
     return end_effector_pose;
 }

@@ -53,6 +53,9 @@ public:
     /** Checks if all joints have been initialized */
     bool isInitialized();
 
+    /** Get a pointer to the internal TransformListener */
+    tf::TransformListener* getTransformListener();
+
 protected:
 
     /** Pointer to whole-body controller object */

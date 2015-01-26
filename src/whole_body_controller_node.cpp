@@ -8,6 +8,7 @@
 
 #include <octomap_msgs/conversions.h>
 #include <profiling/StatsPublisher.h>
+#include <tf/transform_listener.h>
 
 const double loop_rate_ = 50;
 
@@ -15,6 +16,8 @@ typedef actionlib::SimpleActionServer<amigo_whole_body_controller::ArmTaskAction
 action_server* add_motion_objective_server_;
 wbc::CollisionAvoidance* collision_avoidance;
 CartesianImpedance* cartesian_impedance;
+
+tf::TransformListener *listener = NULL;
 
 WholeBodyController* wholeBodyController;
 
@@ -111,7 +114,7 @@ void GoalCB() {
             wholeBodyController->removeMotionObjective(imps_to_remove[i]);
         }
 
-        cartesian_impedance = new CartesianImpedance(goal.position_constraint.link_name, 1.0/loop_rate_);
+        cartesian_impedance = new CartesianImpedance(goal.position_constraint.link_name, 1.0/loop_rate_, listener);
         geometry_msgs::PoseStamped goal_pose;
         goal_pose.pose.position = goal.position_constraint.position;
         goal_pose.pose.orientation = goal.orientation_constraint.orientation;
@@ -175,6 +178,7 @@ int main(int argc, char **argv) {
 
     /// Robot interface
     RobotInterface robot_interface(wholeBodyController);
+    listener = robot_interface.getTransformListener();
 
     /// Joint trajectory executer
     JointTrajectoryAction jte(wholeBodyController);

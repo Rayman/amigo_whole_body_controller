@@ -184,3 +184,8 @@ void RobotInterface::jointMeasurementCallback(const sensor_msgs::JointState::Con
 bool RobotInterface::isInitialized() {
 	return initialized_;
 }
+
+tf::TransformListener* RobotInterface::getTransformListener()
+{
+    return &listener_;
+}

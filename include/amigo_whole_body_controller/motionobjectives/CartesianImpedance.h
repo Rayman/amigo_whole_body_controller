@@ -27,13 +27,14 @@
 #include <fstream>
 #include "ReferenceGenerator.h"
 #include "amigo_whole_body_controller/Tracing.hpp"
+#include <tf/transform_listener.h>
 
 class CartesianImpedance : public MotionObjective {
 
 public:
 
     /** Constructor */
-    CartesianImpedance(const std::string& tip_frame, const double Ts);
+    CartesianImpedance(const std::string& tip_frame, const double Ts, tf::TransformListener *listener);
 
     /** Deconstructor */
     virtual ~CartesianImpedance();
@@ -127,6 +128,10 @@ protected:
     /** Tracing object */
     Tracing tracer_;
 
+    /** For transforming goals to the robot */
+    tf::TransformListener *listener_;
+
+    bool lookupTransform(const RobotState &robotstate, const std::string &in_frame, KDL::Frame &out_frame);
 };
 
 #endif
