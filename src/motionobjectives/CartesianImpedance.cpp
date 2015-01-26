@@ -81,15 +81,15 @@ void CartesianImpedance::setVelocity(RobotState &robotstate){
     robotstate.collectFKSolutions();
 
     /// Get end effector pose (is in map frame)
-    std::map<std::string, KDL::Frame>::iterator itrFK = robotstate.fk_poses_.find(tip_frame_);
-    KDL::Frame frame_map_tip  = itrFK->second;
+    KDL::Frame frame_map_tip;
+    assert(lookupTransform(robotstate, tip_frame_, frame_map_tip));
 
     /// Include tip offset
     frame_map_tip =  frame_map_tip * frame_tip_offset;
 
     /// Get the pose of the root frame (of the goal) in map
-    std::map<std::string, KDL::Frame>::iterator itrRF = robotstate.fk_poses_.find(root_frame_);
-    KDL::Frame frame_map_root = itrRF->second;
+    KDL::Frame frame_map_root;
+    assert(lookupTransform(robotstate, root_frame_, frame_map_root));
 
     /// Convert end-effector pose to root
     KDL::Frame frame_root_tip = frame_map_root.Inverse() * frame_map_tip;
@@ -271,9 +271,8 @@ void CartesianImpedance::apply(RobotState &robotstate) {
     torques_.setZero();
 
     /// Get end effector pose (this is in map frame)
-    std::map<std::string, KDL::Frame>::iterator itrFK = robotstate.fk_poses_.find(tip_frame_);
-    assert(itrFK != robotstate.fk_poses_.end());
-    KDL::Frame frame_map_tip  = itrFK->second;
+    KDL::Frame frame_map_tip;
+    assert(lookupTransform(robotstate, tip_frame_, frame_map_tip));
     //std::cout << "Frame tip in map: x = " << frame_map_tip.p.x() << ", y = " << frame_map_tip.p.y() << ", z = " << frame_map_tip.p.z() << std::endl;
 
     /// Include tip offset
@@ -281,12 +280,8 @@ void CartesianImpedance::apply(RobotState &robotstate) {
     //std::cout << "Frame tip in map incl offset: x = " << frame_map_ee.p.x() << ", y = " << frame_map_ee.p.y() << ", z = " << frame_map_ee.p.z() << std::endl;
 
     /// Get the pose of the root frame (of the goal) in map
-    std::map<std::string, KDL::Frame>::iterator itrRF = robotstate.fk_poses_.find(root_frame_);
-    if (itrRF == robotstate.fk_poses_.end()) {
-        ROS_ERROR("FK of root_frame %s not found", root_frame_.c_str());
-    }
-    assert(itrRF != robotstate.fk_poses_.end());
-    KDL::Frame frame_map_root = itrRF->second;
+    KDL::Frame frame_map_root;
+    assert(lookupTransform(robotstate, root_frame_, frame_map_root));
     //double r, p, y;frame_map_root.M.GetRPY(r,p,y);
     //std::cout << "Frame root in map: x = " << frame_map_root.p.x() << ", y = " << frame_map_root.p.y() << ", z = " << frame_map_root.p.z() <<
     //             ", roll = " << r << ", pitch = " << p << ", yaw = " << y << std::endl;
@@ -347,9 +342,9 @@ void CartesianImpedance::apply(RobotState &robotstate) {
     //for (unsigned int i = 0; i < robotstate.getNrJoints(); i++) std::cout << "Jacobian (1," << i+1 << ") = " << partial_jacobian.data(0,i) << std::endl;
 
     /// Change base: the Jacobian is computed w.r.t. base_link instead of map, while the force is expressed in map
-    std::map<std::string, KDL::Frame>::iterator itrBLF = robotstate.fk_poses_.find("base_link"); //ToDo: don't hardcode???
-    assert(itrBLF != robotstate.fk_poses_.end());
-    KDL::Frame BaseFrame_in_map = itrBLF->second;
+    KDL::Frame BaseFrame_in_map;
+    assert(lookupTransform(robotstate, "base_link", BaseFrame_in_map)); //ToDo: don't hardcode???
+
     partial_jacobian.changeBase(BaseFrame_in_map.M);
     //for (unsigned int i = 0; i < robotstate.getNrJoints(); i++) std::cout << "Jacobian (3," << i+1 << ") = " << partial_jacobian.data(2,i) << std::endl;
 
