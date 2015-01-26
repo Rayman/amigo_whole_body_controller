@@ -20,7 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   tf
-  kdl_conversions
+  tf_conversions
   visualization_msgs
   fcl
 )
