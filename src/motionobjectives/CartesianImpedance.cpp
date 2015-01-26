@@ -525,7 +525,7 @@ bool CartesianImpedance::lookupTransform(const RobotState &robotstate, const std
         out_frame = it->second;
     } else { /// if that doesn't work, fallback on tf
         // create a identity transform in the input frame
-        tf::Stamped<tf::Pose> pose_in(tf::Pose::getIdentity(), ros::Time(0), "/amigo/" + in_frame);
+        tf::Stamped<tf::Pose> pose_in(tf::Pose::getIdentity(), ros::Time(0), in_frame);
 
         // convert to msg
         geometry_msgs::PoseStamped stamped_in;
