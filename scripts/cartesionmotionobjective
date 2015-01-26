@@ -103,9 +103,12 @@ class CartesianMotionObjective():
         result = self.action_client.get_result()
         print result
 
+    last_feedback = None
     def feedback_cb(self, feedback):
-        code = feedback.status_code
-        print 'feedback!!!', code.status
+        code = feedback.status_code.status
+        if code != self.last_feedback:
+            print 'feedback!!!', code
+            self.last_feedback = code
 
 if __name__ == '__main__':
     arguments = docopt(__doc__)
