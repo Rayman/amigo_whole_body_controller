@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+
+'''
+Put an arm in the carrying pose
+
+Usage:
+  cartesionmotionobjective left  [--free]
+  cartesionmotionobjective right [--free]
+  cartesionmotionobjective cancel
+  cartesionmotionobjective -h | --help
+
+Options:
+  -h --help      Show this screen.
+'''
+
+from docopt import docopt
+import rospy
+
+from amigo_whole_body_controller.msg import *
+from arm_navigation_msgs.msg import *
+from cartesionmotionobjective import CartesianMotionObjective
+
+if __name__ == '__main__':
+    arguments = docopt(__doc__)
+    print arguments
+
+    try:
+        # disable signals so we can detect a KeyboardInterrupt
+        rospy.init_node('cartesionmotionobjective', anonymous=True, disable_signals=True)
+
+        if arguments['cancel']:
+            cmo = CartesianMotionObjective()
+            cmo.action_client.cancel_all_goals()
+            cmo.action_client.wait_for_server()
+
+        elif arguments['left'] or arguments['right']:
+
+            for side in ['left', 'right']:
+                if arguments[side]:
+                    link_name = "grippoint_" + side
+                    break
+
+            position = (0.265, 0.2, 0.75)
+            orientation = (0, 0, 0)
+
+            print 'creating motion objective...'
+            cmo = CartesianMotionObjective()
+
+            goal = cmo.build_goal(link_name=link_name,
+                                  position=position,
+                                  orientation=orientation,
+                                  frame_id='base_link')
+
+            # modify the constraints a bit
+            goal.orientation_constraint.absolute_roll_tolerance = 0.1
+            goal.orientation_constraint.absolute_pitch_tolerance = 0.1
+            goal.orientation_constraint.absolute_yaw_tolerance = 6.28
+
+            goal.stiffness.torque.z = 0.0
+            if arguments['--free']:
+                goal.stiffness.force.z = 0.0
+
+            print 'sending goal...'
+            cmo.send_goal(goal)
+            print 'waiting for result...'
+            cmo.wait_for_result()
+
+    except KeyboardInterrupt:
+        print "program interrupted before completion"
