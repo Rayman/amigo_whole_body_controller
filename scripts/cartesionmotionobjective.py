@@ -2,19 +2,8 @@
 
 '''
 Send a Cartesian Motion Objective
-
-Usage:
-  cartesionmotionobjective left  <x> <y> <z> [<roll> <pitch> <yaw>] [--frame=FRAME]
-  cartesionmotionobjective right <x> <y> <z> [<roll> <pitch> <yaw>] [--frame=FRAME]
-  cartesionmotionobjective cancel
-  cartesionmotionobjective -h | --help
-
-Options:
-  -h --help      Show this screen.
-  --frame=FRAME  Which frame the coordinate is specified in [default: base_link]
 '''
 
-from docopt import docopt
 import roslib; roslib.load_manifest('amigo_whole_body_controller')
 import rospy
 import actionlib
@@ -109,49 +98,3 @@ class CartesianMotionObjective():
         if code != self.last_feedback:
             print 'feedback!!!', code
             self.last_feedback = code
-
-if __name__ == '__main__':
-    arguments = docopt(__doc__)
-    print arguments
-
-    try:
-        # disable signals so we can detect a KeyboardInterrupt
-        rospy.init_node('cartesionmotionobjective', anonymous=True, disable_signals=True)
-
-        if arguments['cancel']:
-            cmo = CartesianMotionObjective()
-            cmo.action_client.cancel_all_goals()
-            cmo.action_client.wait_for_server()
-
-        elif arguments['left'] or arguments['right']:
-
-            for side in ['left', 'right']:
-                if arguments[side]:
-                    link_name = "grippoint_" + side
-                    break
-
-            position = (
-                float(arguments['<x>']) ,
-                float(arguments['<y>']) ,
-                float(arguments['<z>']) )
-            if arguments['<roll>']:
-                orientation = (
-                    float(arguments['<roll>' ]) ,
-                    float(arguments['<pitch>']) ,
-                    float(arguments['<yaw>'  ]) )
-            else:
-                orientation = None
-            frame_id = arguments['--frame']
-
-            print 'creating motion objective...'
-            cmo = CartesianMotionObjective()
-            print 'sending goal...'
-            cmo.send_goal(cmo.build_goal(link_name=link_name,
-                                         position=position,
-                                         orientation=orientation,
-                                         frame_id=frame_id))
-            print 'waiting for result...'
-            cmo.wait_for_result()
-
-    except KeyboardInterrupt:
-        print "program interrupted before completion"

@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+
+'''
+Send a Cartesian Motion Objective
+
+Usage:
+  send_goal [--frame=FRAME] left  <x> <y> <z> [<roll> <pitch> <yaw>]
+  send_goal [--frame=FRAME] right <x> <y> <z> [<roll> <pitch> <yaw>]
+  send_goal cancel
+  send_goal -h | --help
+
+Options:
+  -h --help      Show this screen.
+  --frame=FRAME  Which frame the coordinate is specified in [default: base_link]
+'''
+
+from docopt import docopt
+import roslib; roslib.load_manifest('amigo_whole_body_controller')
+import rospy
+
+from amigo_whole_body_controller.msg import *
+from arm_navigation_msgs.msg import *
+from cartesionmotionobjective import CartesianMotionObjective
+
+if __name__ == '__main__':
+    arguments = docopt(__doc__, options_first=True)
+    print arguments
+
+    try:
+        # disable signals so we can detect a KeyboardInterrupt
+        rospy.init_node('cartesionmotionobjective', anonymous=True, disable_signals=True)
+
+        if arguments['cancel']:
+            cmo = CartesianMotionObjective()
+            cmo.action_client.cancel_all_goals()
+            cmo.action_client.wait_for_server()
+
+        elif arguments['left'] or arguments['right']:
+
+            for side in ['left', 'right']:
+                if arguments[side]:
+                    link_name = "grippoint_" + side
+                    break
+
+            position = (
+                float(arguments['<x>']) ,
+                float(arguments['<y>']) ,
+                float(arguments['<z>']) )
+            if arguments['<roll>']:
+                orientation = (
+                    float(arguments['<roll>' ]) ,
+                    float(arguments['<pitch>']) ,
+                    float(arguments['<yaw>'  ]) )
+            else:
+                orientation = None
+            frame_id = arguments['--frame']
+
+            print 'creating motion objective...'
+            cmo = CartesianMotionObjective()
+            print 'sending goal...'
+            cmo.send_goal(cmo.build_goal(link_name=link_name,
+                                         position=position,
+                                         orientation=orientation,
+                                         frame_id=frame_id))
+            print 'waiting for result...'
+            cmo.wait_for_result()
+
+    except KeyboardInterrupt:
+        print "program interrupted before completion"
