@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ "$1" == "left" ]
+then
+    y=0.2
+elif [ "$1" == "right" ]
+then
+    y="-0.2"
+else
+    echo -e "usage:\n  grasp <side>"
+    exit
+fi
+
+rosrun amigo_whole_body_controller send_goal $1 0.5 $y 0.8 0 0 0
