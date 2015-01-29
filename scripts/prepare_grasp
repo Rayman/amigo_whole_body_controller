@@ -1,0 +1,55 @@
+#!/usr/bin/env python
+
+'''
+Send a prepare_grasp trajectory to an arm
+
+Usage:
+  prepare_grasp left
+  prepare_grasp right
+  prepare_grasp -h | --help
+
+Options:
+  -h --help      Show this screen.
+'''
+
+from docopt import docopt
+from functools import partial
+import rospy
+
+from amigo_whole_body_controller.msg import *
+from arm_navigation_msgs.msg import *
+from cartesionmotionobjective import CartesianMotionObjective
+
+from robot_smach_states.designators.designator import Designator
+from robot_skills.amigo import Amigo
+import robot_smach_states as states
+
+def init(amigo, side=None):
+    if side == 'right' or not side:
+        rospy.loginfo('prepare_grasp right arm')
+        amigo.rightArm.send_joint_trajectory('prepare_grasp')
+    elif side == 'left' or not side:
+        rospy.loginfo('prepare_grasp left arm')
+        amigo.leftArm.send_joint_trajectory('prepare_grasp')
+    else:
+        rospy.logwarn('wrong side')
+
+if __name__ == '__main__':
+    arguments = docopt(__doc__)
+    print arguments
+
+    try:
+        # disable signals so we can detect a KeyboardInterrupt
+        rospy.init_node('cartesionmotionobjective', anonymous=True, disable_signals=True)
+
+        if arguments['left']:
+            side = 'left'
+        else:
+            side = 'right'
+
+        robot = Amigo(wait_services=True)
+        init(robot, side)
+
+    except KeyboardInterrupt:
+        print "program interrupted before completion"
+
