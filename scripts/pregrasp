@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+
+'''
+Send a pregrasp goal
+
+Usage:
+  pregrasp [--frame=FRAME] left  <x> <y> <z> <roll> <pitch> <yaw>
+  pregrasp [--frame=FRAME] right <x> <y> <z> <roll> <pitch> <yaw>
+  pregrasp -h | --help
+
+Options:
+  -h --help      Show this screen.
+  --frame=FRAME  Which frame the coordinate is specified in [default: /base_link]
+'''
+
+from docopt import docopt
+import roslib; roslib.load_manifest('amigo_whole_body_controller')
+import rospy
+
+from amigo_whole_body_controller.msg import *
+from arm_navigation_msgs.msg import *
+from robot_skills.amigo import Amigo
+
+if __name__ == '__main__':
+    arguments = docopt(__doc__, options_first=True)
+    print arguments
+
+    try:
+        # disable signals so we can detect a KeyboardInterrupt
+        rospy.init_node('pregrasp', anonymous=True, disable_signals=True)
+
+        if arguments['left'] or arguments['right']:
+
+            for side in ['left', 'right']:
+                if arguments[side]:
+                    link_name = "grippoint_" + side
+                    break
+
+            position = (
+                float(arguments['<x>']) ,
+                float(arguments['<y>']) ,
+                float(arguments['<z>']) )
+            orientation = (
+                float(arguments['<roll>' ]) ,
+                float(arguments['<pitch>']) ,
+                float(arguments['<yaw>'  ]) )
+
+            frame_id = arguments['--frame']
+
+            robot = Amigo(wait_services=True)
+            if side == 'right':
+                arm = robot.rightArm
+            elif side == 'left':
+                arm = robot.leftArm
+
+            print 'sending goal...'
+            arm.send_goal(*(position + orientation),
+                # timeout=30,
+                pre_grasp=True,
+                # first_joint_pos_only=False
+                frame_id=frame_id)
+
+    except KeyboardInterrupt:
+        print "program interrupted before completion"
