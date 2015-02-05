@@ -110,6 +110,22 @@ bool CollisionAvoidance::initialize(RobotState &robotstate)
     torques_.resize(number_joints);
     torques_.setZero();
 
+    /// Initialize tracer
+    std::vector<std::string> column_names;
+    column_names.push_back("min_distance");
+    column_names.push_back("amplitude");
+    column_names.push_back("dx");
+    column_names.push_back("dy");
+    column_names.push_back("dz");
+
+    std::string filename("CollisionAvoidance");
+    std::string foldername;
+    n.param<std::string> ("/whole_body_controller/tracing_foldername", foldername, "/tmp/");
+
+    int buffersize;
+    n.param<int> ("/whole_body_controller/tracing_buffersize", buffersize, 0);
+    tracer_.Initialize(foldername, filename, column_names, buffersize);
+
     ROS_INFO_STREAM("Initialized Obstacle Avoidance");
 
     statsPublisher_.initialize();
@@ -178,15 +194,22 @@ void CollisionAvoidance::apply(RobotState &robotstate)
 
     statsPublisher_.stopTimer("CollisionAvoidance::calculateRepulsiveForce");
 
-#ifdef DEBUG_REPULSIVE_FORCE
-    uint64_t t = ros::Time::now().toNSec() / 1000;
-    for(std::vector<RepulsiveForce>::iterator it = repulsive_forces_total.begin(); it < repulsive_forces_total.end(); it++) {
-        std::cout << "rp_bt "   << t << " " << *it << std::endl;
+
+    std::vector<Distance2>::iterator min_distance = findMinimumDistance(min_distances_total_fcl, "grippoint_right");
+    std::vector<RepulsiveForce>::iterator max_force = findMaxRepulsiveForce(repulsive_forces_total_fcl, "grippoint_right");
+
+    tracer_.newLine();
+
+    if (min_distance != min_distances_total_fcl.end()) {
+        Distance2 &distance = *min_distance;
+        tracer_.collectTracing(1, distance.result.min_distance);
     }
-    for(std::vector<RepulsiveForce>::iterator it = repulsive_forces_total_fcl.begin(); it < repulsive_forces_total_fcl.end(); it++) {
-        std::cout << "rp_fcl "  << t << " " << *it << std::endl;
+
+    if (max_force != repulsive_forces_total_fcl.end()) {
+        RepulsiveForce &rp = *max_force;
+        tracer_.collectTracing(2, rp.amplitude);
+        tracer_.collectTracing(3, rp.direction);
     }
-#endif
 
     statsPublisher_.startTimer("CollisionAvoidance::calculateWrenches");
 
@@ -205,6 +228,40 @@ void CollisionAvoidance::apply(RobotState &robotstate)
 
     statsPublisher_.stopTimer("CollisionAvoidance::apply");
     statsPublisher_.publish();
+}
+
+std::vector<CollisionAvoidance::Distance2>::iterator CollisionAvoidance::findMinimumDistance(std::vector<Distance2> distances, std::string link)
+{
+    std::vector<Distance2>::iterator min_distance = distances.end();
+    for(std::vector<Distance2>::iterator it = distances.begin(); it != distances.end(); it++) {
+        if (it->frame_id == link) {
+            if (min_distance != distances.end()) {
+                if (it->result.min_distance < min_distance->result.min_distance) {
+                    ROS_WARN("multiple minimum distances found for %s", it->frame_id.c_str());
+                    min_distance = it;
+                }
+            } else {
+                min_distance = it;
+            }
+        }
+    }
+}
+
+std::vector<CollisionAvoidance::RepulsiveForce>::iterator CollisionAvoidance::findMaxRepulsiveForce(std::vector<RepulsiveForce> forces, std::string link)
+{
+    std::vector<RepulsiveForce>::iterator max_force = forces.end();
+    for(std::vector<RepulsiveForce>::iterator it = forces.begin(); it != forces.end(); it++) {
+        if (it->frame_id == link) {
+            if (max_force != forces.end()) {
+                if (it->amplitude > max_force->amplitude) {
+                    ROS_WARN("multiple maximum repulsive forces found for %s", it->frame_id.c_str());
+                    max_force = it;
+                }
+            } else {
+                max_force = it;
+            }
+        }
+    }
 }
 
 void CollisionAvoidance::setCollisionWorld(WorldClient *world_client)

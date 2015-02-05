@@ -15,6 +15,7 @@
 #include "Chain.h"
 #include "Tree.h"
 #include "amigo_whole_body_controller/worldclient.h"
+#include "amigo_whole_body_controller/Tracing.hpp"
 
 
 #ifdef USE_BULLET
@@ -351,6 +352,13 @@ protected:
      * @param Input: The collision body, Output: The minimum and maximum point of the collision body in /map frame
      */
     void findOuterPoints(RobotState::CollisionBody& collisionBody, btVector3 &min, btVector3 &max);
+
+    /** Tracing object */
+    Tracing tracer_;
+
+    std::vector<Distance2>::iterator findMinimumDistance(std::vector<Distance2> distances, std::string link);
+
+    std::vector<CollisionAvoidance::RepulsiveForce>::iterator findMaxRepulsiveForce(std::vector<RepulsiveForce> forces, std::string link);
 
     StatsPublisher statsPublisher_;
 };
