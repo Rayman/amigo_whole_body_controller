@@ -28,10 +28,9 @@ bool RobotInterface::initialize()
         ROS_INFO("Waiting for transform from map to base link");
         tf_present = listener_.waitForTransform("/map","/amigo/base_link",ros::Time(0),ros::Duration(1.0)); // Is the latest available transform
     }
-    torso_sub_      = nh_private.subscribe<sensor_msgs::JointState>("/amigo/torso/measurements", 1, &RobotInterface::jointMeasurementCallback, this);
-    left_arm_sub_   = nh_private.subscribe<sensor_msgs::JointState>("/amigo/left_arm/measurements", 1, &RobotInterface::jointMeasurementCallback, this);
-    right_arm_sub_  = nh_private.subscribe<sensor_msgs::JointState>("/amigo/right_arm/measurements", 1, &RobotInterface::jointMeasurementCallback, this);
-    neck_sub_       = nh_private.subscribe<sensor_msgs::JointState>("/amigo/neck/measurements", 1, &RobotInterface::jointMeasurementCallback, this);
+    torso_sub_      = nh_private.subscribe<sensor_msgs::JointState>("/amigo/torso/measurements",     1, &RobotInterface::jointMeasurementCallback, this);
+    arms_sub_       = nh_private.subscribe<sensor_msgs::JointState>("/amigo/joint_states",           1, &RobotInterface::jointMeasurementCallback, this);
+    neck_sub_       = nh_private.subscribe<sensor_msgs::JointState>("/amigo/neck/measurements",      1, &RobotInterface::jointMeasurementCallback, this);
 
     /// Publishers
     torso_pub_      = new JointRefPublisher("/amigo/torso/references");

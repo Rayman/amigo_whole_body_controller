@@ -62,7 +62,7 @@ protected:
     WholeBodyController *wbc_;
 
     /** Subscribers to jointstate topics */
-    ros::Subscriber torso_sub_, left_arm_sub_, right_arm_sub_, neck_sub_;
+    ros::Subscriber torso_sub_, arms_sub_, neck_sub_;
 
     /** Tf listener (required for base pose) */
     tf::TransformListener listener_;
