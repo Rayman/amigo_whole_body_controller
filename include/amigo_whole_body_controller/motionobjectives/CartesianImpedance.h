@@ -28,6 +28,7 @@
 #include "ReferenceGenerator.h"
 #include "amigo_whole_body_controller/Tracing.hpp"
 #include <tf/transform_listener.h>
+#include <visualization_msgs/Marker.h>
 
 class CartesianImpedance : public MotionObjective {
 
@@ -124,6 +125,8 @@ protected:
 
     /** Reference point for offset of tip, for pre-grasp */
     //KDL::Vector ref_tip_offset;
+
+    ros::Publisher vis_pub;
 
     /** Tracing object */
     Tracing tracer_;
