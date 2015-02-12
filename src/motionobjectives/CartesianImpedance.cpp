@@ -36,6 +36,8 @@ CartesianImpedance::CartesianImpedance(const std::string& tip_frame, const doubl
     frame_tip_offset.Identity();
     ee_map_vel_.Zero();
 
+    vis_pub = n.advertise<visualization_msgs::Marker>("cartesian_impedance", 0);
+
     /// Initialize tracer
     std::vector<std::string> column_names;
     column_names.push_back("rx");
@@ -296,7 +298,7 @@ void CartesianImpedance::apply(RobotState &robotstate) {
     //std::cout << "Frame ee in root: x = " << frame_root_ee.p.x() << ", y = " << frame_root_ee.p.y() << ", z = " << frame_root_ee.p.z() << std::endl;
 
     /// Convert goal pose in root to goal pose in map
-    //KDL::Frame frame_map_goal = frame_map_root * frame_root_ref;
+    KDL::Frame frame_map_goal = frame_map_root * frame_root_ref;
     //std::cout << "Frame interpolated goal in map: x = " << frame_map_goal.p.x() << ", y = " << frame_map_goal.p.y() << ", z = " << frame_map_goal.p.z() << std::endl;
 
     /// Compute pose error in root coordinates w.r.t. end_goal). This is NOT required for the computation!
@@ -422,6 +424,44 @@ void CartesianImpedance::apply(RobotState &robotstate) {
 	/// Set the tip velocity
     frame_root_tip_previous_ = frame_root_tip;
 
+    /// visualize the objective
+    visualization_msgs::Marker marker;
+    marker.header.frame_id = "map";
+    marker.header.stamp = ros::Time();
+    marker.ns = tip_frame_;
+    marker.id = 0;
+    marker.lifetime = ros::Duration(0.1);
+
+    switch (constraint_type_) {
+    case arm_navigation_msgs::Shape::SPHERE:
+        marker.type = visualization_msgs::Marker::SPHERE;
+        marker.scale.x = sphere_tolerance_;
+        marker.scale.y = sphere_tolerance_;
+        marker.scale.z = sphere_tolerance_;
+        break;
+    default:
+        ROS_ERROR_ONCE("unknown constraint shape %ui", constraint_type_);
+    }
+    marker.action = visualization_msgs::Marker::ADD;
+
+    tf::poseKDLToMsg(frame_map_goal, marker.pose);
+
+    marker.color.a = 1.0;
+    if (tip_frame_ == "grippoint_right") {
+        marker.color.r = 1.0;
+        marker.color.g = 0.0;
+        marker.color.b = 0.0;
+    } else if (tip_frame_ == "grippoint_left") {
+        marker.color.r = 0.0;
+        marker.color.g = 0.0;
+        marker.color.b = 1.0;
+    } else {
+        marker.color.r = 0.0;
+        marker.color.g = 1.0;
+        marker.color.b = 0.0;
+    }
+
+    vis_pub.publish(marker);
 }
 
 KDL::Twist CartesianImpedance::getError() {
