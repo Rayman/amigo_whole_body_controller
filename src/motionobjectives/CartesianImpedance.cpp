@@ -424,13 +424,14 @@ void CartesianImpedance::apply(RobotState &robotstate) {
 	/// Set the tip velocity
     frame_root_tip_previous_ = frame_root_tip;
 
-    /// visualize the objective
+    /// visualize the goal constraint
     visualization_msgs::Marker marker;
     marker.header.frame_id = "map";
     marker.header.stamp = ros::Time();
     marker.ns = tip_frame_;
     marker.id = 0;
     marker.lifetime = ros::Duration(0.1);
+    marker.action = visualization_msgs::Marker::ADD;
 
     switch (constraint_type_) {
     case arm_navigation_msgs::Shape::SPHERE:
@@ -442,7 +443,6 @@ void CartesianImpedance::apply(RobotState &robotstate) {
     default:
         ROS_ERROR_ONCE("unknown constraint shape %ui", constraint_type_);
     }
-    marker.action = visualization_msgs::Marker::ADD;
 
     tf::poseKDLToMsg(frame_map_goal, marker.pose);
 
@@ -461,7 +461,28 @@ void CartesianImpedance::apply(RobotState &robotstate) {
         marker.color.b = 0.0;
     }
 
+    /// visualize an arrow from tip to goal
+
+    visualization_msgs::Marker marker_arrow;
+    marker_arrow.header.frame_id = "map";
+    marker_arrow.header.stamp = ros::Time();
+    marker_arrow.ns = tip_frame_ + "_arrow";
+    marker_arrow.id = 0;
+    marker_arrow.lifetime = ros::Duration(0.1);
+    marker_arrow.action = visualization_msgs::Marker::ADD;
+
+    marker_arrow.type = visualization_msgs::Marker::ARROW;
+    marker_arrow.color = marker.color;
+    marker_arrow.color.a = 0.7;
+    marker_arrow.scale.x = 0.02;
+    marker_arrow.scale.y = 0.05;
+
+    marker_arrow.points.resize(2);
+    tf::pointKDLToMsg(frame_map_ee.p,   marker_arrow.points[0]);
+    tf::pointKDLToMsg(frame_map_goal.p, marker_arrow.points[1]);
+
     vis_pub.publish(marker);
+    vis_pub.publish(marker_arrow);
 }
 
 KDL::Twist CartesianImpedance::getError() {
