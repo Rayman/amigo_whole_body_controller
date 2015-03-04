@@ -14,7 +14,7 @@
 	<rosparam file="$(find amigo_whole_body_controller)/parameters/collision_avoidance.yaml" command="load" ns="whole_body_controller"/>
 	<rosparam file="$(find amigo_whole_body_controller)/parameters/joint_trajectory_action.yaml" command="load" ns="whole_body_controller"/>
 
-	<node pkg="amigo_whole_body_controller" type="whole_body_controller" name="whole_body_controller" respawn="false" output="screen"> <!-- launch-prefix="${arg launch_prefix}"/> -->
+	<node pkg="amigo_whole_body_controller" type="wbc" name="whole_body_controller" respawn="false" output="screen"> <!-- launch-prefix="${arg launch_prefix}"/> -->
 		<param name="omit_admittance" value="false"/> <!--If ROBOT_REAL is true, admittance controller is omitted since this is implemented in Orocos-->
 		<param name="tracing_folder" value="/tmp/"/>
 		<param name="tracing_buffersize" value="0"/>
