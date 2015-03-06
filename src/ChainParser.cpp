@@ -18,8 +18,6 @@ bool ChainParser::parse(Tree& tree,
                         KDL::JntArray& q_max)
 {
     ros::NodeHandle n("~");
-    //std::string ns = n.getNamespace();
-    std::string ns = "/whole_body_controller";
 
     /* * * * * * * * PARSE JOINT TOPICS * * * * * * * * */
 
@@ -57,8 +55,8 @@ bool ChainParser::parse(Tree& tree,
     /* * * * * * * * PARSE CHAINS * * * * * * * * */
 
     XmlRpc::XmlRpcValue chain_params;
-    if (!n.getParam(ns + "/chain_description", chain_params)) {
-        ROS_ERROR("No chain description given: %s", (ns + "/chain_description").c_str());
+    if (!n.getParam("chain_description", chain_params)) {
+        ROS_ERROR("No chain description given: %s", "chain_description");
         return false;
     }
 

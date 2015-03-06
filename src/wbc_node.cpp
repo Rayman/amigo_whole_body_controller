@@ -33,8 +33,7 @@ WholeBodyControllerNode::WholeBodyControllerNode (ros::Rate &loop_rate)
     }
 
     // get omit_admittance from the parameter server
-    std::string ns = ros::this_node::getName();
-    private_nh.param<bool> (ns+"/omit_admittance", omit_admittance, true);
+    private_nh.param<bool> ("omit_admittance", omit_admittance, true);
     ROS_WARN("Omit admittance = %d", omit_admittance);
 
     // Before startup: make sure all joint values are initialized properly
@@ -61,7 +60,7 @@ void WholeBodyControllerNode::setCollisionWorld(WorldClient *world_client)
 wbc::CollisionAvoidance::collisionAvoidanceParameters WholeBodyControllerNode::loadCollisionAvoidanceParameters() const {
     wbc::CollisionAvoidance::collisionAvoidanceParameters ca_param;
     ros::NodeHandle n("~");
-    std::string ns = ros::this_node::getName() + "/collision_avoidance";
+    std::string ns = "collision_avoidance";
 
     n.param<double> (ns+"/self_collision/F_max",                        ca_param.self_collision.f_max, 1.0);
     n.param<double> (ns+"/self_collision/d_threshold",                  ca_param.self_collision.d_threshold, 1.0);
@@ -73,7 +72,7 @@ wbc::CollisionAvoidance::collisionAvoidanceParameters WholeBodyControllerNode::l
     n.param<int>    (ns+"/environment_collision/order",                         ca_param.environment_collision.order, 1);
     n.param<double> (ns+"/environment_collision/visualization_force_factor",    ca_param.environment_collision.visualization_force_factor, 1.0);
 
-    n.getParam("/map_3d/resolution", ca_param.environment_collision.octomap_resolution);
+    n.getParam("map_3d/resolution", ca_param.environment_collision.octomap_resolution);
 
     assert(ca_param.self_collision.visualization_force_factor >= 1.0);
     assert(ca_param.environment_collision.visualization_force_factor >= 1.0);

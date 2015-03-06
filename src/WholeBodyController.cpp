@@ -2,7 +2,6 @@
 
 #include "ChainParser.h"
 #include <ros/node_handle.h>
-#include <ros/this_node.h>
 
 WholeBodyController::WholeBodyController(const double Ts)
 {
@@ -47,12 +46,12 @@ bool WholeBodyController::initialize(const double Ts)
 
     for (std::map<std::string, unsigned int>::iterator iter = joint_name_to_index_.begin(); iter != joint_name_to_index_.end(); ++iter)
     {
-        n.param<double> ("/whole_body_controller/joint_limit_avoidance/gain/"+iter->first, JLA_gain[iter->second], 1.0);
-        n.param<double> ("/whole_body_controller/joint_limit_avoidance/workspace/"+iter->first, JLA_workspace[iter->second], 0.9);
-        n.param<double> ("/whole_body_controller/posture_control/home_position/"+iter->first, posture_q0[iter->second], 0);
-        n.param<double> ("/whole_body_controller/posture_control/gain/"+iter->first, posture_gain[iter->second], 1.0);
-        n.param<double> ("/whole_body_controller/admittance_control/mass/"+iter->first, admittance_mass[iter->second], 10);
-        n.param<double> ("/whole_body_controller/admittance_control/damping/"+iter->first, admittance_damping[iter->second], 10);
+        n.param<double> ("joint_limit_avoidance/gain/"+iter->first, JLA_gain[iter->second], 1.0);
+        n.param<double> ("joint_limit_avoidance/workspace/"+iter->first, JLA_workspace[iter->second], 0.9);
+        n.param<double> ("posture_control/home_position/"+iter->first, posture_q0[iter->second], 0);
+        n.param<double> ("posture_control/gain/"+iter->first, posture_gain[iter->second], 1.0);
+        n.param<double> ("admittance_control/mass/"+iter->first, admittance_mass[iter->second], 10);
+        n.param<double> ("admittance_control/damping/"+iter->first, admittance_damping[iter->second], 10);
     }
 
     loadParameterFiles();
@@ -104,8 +103,8 @@ bool WholeBodyController::initialize(const double Ts)
     column_names.push_back("posture_cost");
     int buffersize;
     std::string foldername;
-    n.param<int> ("/whole_body_controller/tracing_buffersize", buffersize, 0);
-    n.param<std::string> ("/whole_body_controller/tracing_folder", foldername, "/tmp/");
+    n.param<int> ("tracing_buffersize", buffersize, 0);
+    n.param<std::string> ("tracing_folder", foldername, "/tmp/");
     std::string filename = "joints";
     //std::string folderfilename = foldername + filename; // ToDo: make nice
     tracer_.Initialize(foldername, filename, column_names, buffersize);
@@ -331,13 +330,12 @@ std::vector<MotionObjective*> WholeBodyController::getCartesianImpedances(const 
 void WholeBodyController::loadParameterFiles()
 {
     ros::NodeHandle n("~");
-    std::string ns = ros::this_node::getName();
     XmlRpc::XmlRpcValue groups;
     typedef std::map<std::string, XmlRpc::XmlRpcValue>::iterator XmlRpcIterator;
     try
     {
         // ROBOT
-        n.getParam("/whole_body_controller/collision_model", groups);
+        n.getParam("collision_model", groups);
         for(XmlRpcIterator itrGroups = groups.begin(); itrGroups != groups.end(); ++itrGroups)
         {
             // COLLISION GROUP
@@ -365,7 +363,7 @@ void WholeBodyController::loadParameterFiles()
         }
 
         XmlRpc::XmlRpcValue exclusion_groups;
-        n.getParam("/whole_body_controller/exlusions_collision_calculation", exclusion_groups);
+        n.getParam("exlusions_collision_calculation", exclusion_groups);
         for(XmlRpcIterator itrExclGr = exclusion_groups.begin(); itrExclGr != exclusion_groups.end(); ++itrExclGr)
         {
             XmlRpc::XmlRpcValue ExclGroup = itrExclGr->second;

@@ -67,11 +67,11 @@ CartesianImpedance::CartesianImpedance(const std::string& tip_frame, const doubl
 
     std::string filename("CartImp");
     std::string foldername;
-    n.param<std::string> ("/whole_body_controller/tracing_foldername", foldername, "/tmp/");
+    n.param<std::string> ("tracing_foldername", foldername, "/tmp/");
     //std::string folderfilename = foldername + filename;
 
     int buffersize;
-    n.param<int> ("/whole_body_controller/tracing_buffersize", buffersize, 0);
+    n.param<int> ("tracing_buffersize", buffersize, 0);
     tracer_.Initialize(foldername, filename, column_names, buffersize);
 
     //ROS_INFO("Initialized Cartesian Impedance");

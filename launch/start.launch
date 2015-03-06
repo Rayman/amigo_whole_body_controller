@@ -1,26 +1,32 @@
 <?xml version="1.0"?>
 
 <launch>
-	<arg name="launch_prefix" default="" />
-	<arg name="ROBOT_REAL" default="$(optenv ROBOT_REAL false)" />
 
-	<rosparam file="$(find amigo_whole_body_controller)/parameters/parameters.yaml" command="load" ns="whole_body_controller"/>
-	<rosparam file="$(find amigo_whole_body_controller)/parameters/joint_limit_avoidance.yaml" command="load" ns="whole_body_controller"/>
-	<rosparam file="$(find amigo_whole_body_controller)/parameters/posture_control.yaml" command="load" ns="whole_body_controller"/>
-	<rosparam file="$(find amigo_whole_body_controller)/parameters/admittance_control.yaml" command="load" ns="whole_body_controller"/>
-	<rosparam file="$(find amigo_whole_body_controller)/parameters/component_description.yaml" command="load" ns="whole_body_controller"/>
-	<rosparam file="$(find amigo_whole_body_controller)/parameters/chain_description.yaml" command="load" ns="whole_body_controller"/>
-	<rosparam file="$(find amigo_whole_body_controller)/parameters/collision_model.yaml" command="load" ns="whole_body_controller"/>
-	<rosparam file="$(find amigo_whole_body_controller)/parameters/collision_avoidance.yaml" command="load" ns="whole_body_controller"/>
-	<rosparam file="$(find amigo_whole_body_controller)/parameters/joint_trajectory_action.yaml" command="load" ns="whole_body_controller"/>
+	<group ns="amigo">
 
-	<node pkg="amigo_whole_body_controller" type="wbc" name="whole_body_controller" respawn="false" output="screen"> <!-- launch-prefix="${arg launch_prefix}"/> -->
-		<param name="omit_admittance" value="false"/> <!--If ROBOT_REAL is true, admittance controller is omitted since this is implemented in Orocos-->
-		<param name="tracing_folder" value="/tmp/"/>
-		<param name="tracing_buffersize" value="0"/>
-	<!--<remap from="/amigo/right_arm/references" to="/TEST_TORQUES_RIGHT" />
-		<remap from="/amigo/left_arm/references" to="/TEST_TORQUES_LEFT" />
-		<remap from="/amigo/torso/references" to="/TEST_TORQUES_TORSO" />-->
-		<remap from="/amigo/neck/references" to="/TEST_TORQUES_NECK" />
-	</node>
+		<arg name="launch_prefix" default="" />
+		<arg name="ROBOT_REAL" default="$(optenv ROBOT_REAL false)" />
+
+		<rosparam file="$(find amigo_whole_body_controller)/parameters/parameters.yaml" command="load" ns="whole_body_controller"/>
+		<rosparam file="$(find amigo_whole_body_controller)/parameters/joint_limit_avoidance.yaml" command="load" ns="whole_body_controller"/>
+		<rosparam file="$(find amigo_whole_body_controller)/parameters/posture_control.yaml" command="load" ns="whole_body_controller"/>
+		<rosparam file="$(find amigo_whole_body_controller)/parameters/admittance_control.yaml" command="load" ns="whole_body_controller"/>
+		<rosparam file="$(find amigo_whole_body_controller)/parameters/component_description.yaml" command="load" ns="whole_body_controller"/>
+		<rosparam file="$(find amigo_whole_body_controller)/parameters/chain_description.yaml" command="load" ns="whole_body_controller"/>
+		<rosparam file="$(find amigo_whole_body_controller)/parameters/collision_model.yaml" command="load" ns="whole_body_controller"/>
+		<rosparam file="$(find amigo_whole_body_controller)/parameters/collision_avoidance.yaml" command="load" ns="whole_body_controller"/>
+		<rosparam file="$(find amigo_whole_body_controller)/parameters/joint_trajectory_action.yaml" command="load" ns="whole_body_controller"/>
+
+		<node pkg="amigo_whole_body_controller" type="wbc" name="whole_body_controller" respawn="false" output="screen"> <!-- launch-prefix="${arg launch_prefix}"/> -->
+			<param name="omit_admittance" value="false"/> <!--If ROBOT_REAL is true, admittance controller is omitted since this is implemented in Orocos-->
+			<param name="tracing_folder" value="/tmp/"/>
+			<param name="tracing_buffersize" value="100"/>
+		<!--<remap from="/amigo/right_arm/references" to="/TEST_TORQUES_RIGHT" />
+			<remap from="/amigo/left_arm/references" to="/TEST_TORQUES_LEFT" />
+			<remap from="/amigo/torso/references" to="/TEST_TORQUES_TORSO" />-->
+			<remap from="/amigo/neck/references" to="/TEST_TORQUES_NECK" />
+		</node>
+
+	</group>
+	
 </launch>

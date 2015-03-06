@@ -135,7 +135,7 @@ void GoalCB() {
 void loadParameterFiles(wbc::CollisionAvoidance::collisionAvoidanceParameters &ca_param)
 {
     ros::NodeHandle n("~");
-    std::string ns = ros::this_node::getName() + "/collision_avoidance";
+    std::string ns = "collision_avoidance";
 
     n.param<double> (ns+"/self_collision/F_max",                        ca_param.self_collision.f_max, 1.0);
     n.param<double> (ns+"/self_collision/d_threshold",                  ca_param.self_collision.d_threshold, 1.0);
@@ -147,7 +147,7 @@ void loadParameterFiles(wbc::CollisionAvoidance::collisionAvoidanceParameters &c
     n.param<int>    (ns+"/environment_collision/order",                         ca_param.environment_collision.order, 1);
     n.param<double> (ns+"/environment_collision/visualization_force_factor",    ca_param.environment_collision.visualization_force_factor, 1.0);
 
-    n.getParam("/map_3d/resolution", ca_param.environment_collision.octomap_resolution);
+    n.getParam("map_3d/resolution", ca_param.environment_collision.octomap_resolution);
 
     assert(ca_param.self_collision.visualization_force_factor >= 1.0);
     assert(ca_param.environment_collision.visualization_force_factor >= 1.0);
@@ -169,8 +169,7 @@ int main(int argc, char **argv) {
 
     // Determine whether to publish torques or position references
     bool omit_admittance = false;
-    std::string ns = ros::this_node::getName();
-    nh_private.param<bool> (ns+"/omit_admittance", omit_admittance, true);
+    nh_private.param<bool> ("omit_admittance", omit_admittance, true);
     ROS_WARN("Omit admittance = %d", omit_admittance);
 
     /// Whole body controller object

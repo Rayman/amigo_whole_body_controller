@@ -27,11 +27,11 @@ bool JointTrajectoryAction::initialize() {
     server_->registerGoalCallback(boost::bind(&JointTrajectoryAction::goalCB, this));
     server_->start();
 
-    server_left_ = new action_server(n, "joint_trajectory_action_left", false);
+    server_left_ = new action_server(n, "left_arm/joint_trajectory_action", false);
     server_left_->registerGoalCallback(boost::bind(&JointTrajectoryAction::goalCBLeft, this));
     server_left_->start();
 
-    server_right_ = new action_server(n, "joint_trajectory_action_right", false);
+    server_right_ = new action_server(n, "right_arm/joint_trajectory_action", false);
     server_right_->registerGoalCallback(boost::bind(&JointTrajectoryAction::goalCBRight, this));
     server_right_->start();
 

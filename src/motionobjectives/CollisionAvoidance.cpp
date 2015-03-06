@@ -78,14 +78,13 @@ bool CollisionAvoidance::initialize(RobotState &robotstate)
 
     // Get node handle
     ros::NodeHandle n("~");
-    std::string ns = ros::this_node::getName();
 
     // Initialize output topics
-    pub_model_marker_      = n.advertise<visualization_msgs::MarkerArray>("/whole_body_controller/collision_model_markers/", 10);
-    pub_model_marker_fcl_  = n.advertise<visualization_msgs::Marker>("/whole_body_controller/collision_model_markers_fcl/", 10);
-    pub_forces_marker_     = n.advertise<visualization_msgs::MarkerArray>("/whole_body_controller/repulsive_forces_markers/", 10);
-    pub_forces_marker_fcl_ = n.advertise<visualization_msgs::MarkerArray>("/whole_body_controller/repulsive_forces_markers_fcl/", 10);
-    pub_bbx_marker_        = n.advertise<visualization_msgs::MarkerArray>("/whole_body_controller/bbx_markers/", 10);
+    pub_model_marker_      = n.advertise<visualization_msgs::MarkerArray>("collision_model_markers/",      10);
+    pub_model_marker_fcl_  = n.advertise<visualization_msgs::Marker>     ("collision_model_markers_fcl/",  10);
+    pub_forces_marker_     = n.advertise<visualization_msgs::MarkerArray>("repulsive_forces_markers/",     10);
+    pub_forces_marker_fcl_ = n.advertise<visualization_msgs::MarkerArray>("repulsive_forces_markers_fcl/", 10);
+    pub_bbx_marker_        = n.advertise<visualization_msgs::MarkerArray>("bbx_markers/",                  10);
 
     // Initialize OctoMap
     octomap_ = new octomap::OcTreeStamped(ca_param_.environment_collision.octomap_resolution);
