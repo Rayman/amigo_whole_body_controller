@@ -194,18 +194,18 @@ void CollisionAvoidance::apply(RobotState &robotstate)
     statsPublisher_.stopTimer("CollisionAvoidance::calculateRepulsiveForce");
 
 
-    std::vector<Distance2>::iterator min_distance = findMinimumDistance(min_distances_total_fcl, "grippoint_right");
-    std::vector<RepulsiveForce>::iterator max_force = findMaxRepulsiveForce(repulsive_forces_total_fcl, "grippoint_right");
+    std::vector<Distance2>::const_iterator min_distance = findMinimumDistance(min_distances_total_fcl, "grippoint_right");
+    std::vector<RepulsiveForce>::const_iterator max_force = findMaxRepulsiveForce(repulsive_forces_total_fcl, "grippoint_right");
 
     tracer_.newLine();
 
     if (min_distance != min_distances_total_fcl.end()) {
-        Distance2 &distance = *min_distance;
+        const Distance2 &distance = *min_distance;
         tracer_.collectTracing(1, distance.result.min_distance);
     }
 
     if (max_force != repulsive_forces_total_fcl.end()) {
-        RepulsiveForce &rp = *max_force;
+        const RepulsiveForce &rp = *max_force;
         tracer_.collectTracing(2, rp.amplitude);
         tracer_.collectTracing(3, rp.direction);
     }
@@ -229,10 +229,10 @@ void CollisionAvoidance::apply(RobotState &robotstate)
     statsPublisher_.publish();
 }
 
-std::vector<CollisionAvoidance::Distance2>::iterator CollisionAvoidance::findMinimumDistance(std::vector<Distance2> distances, std::string link)
+std::vector<CollisionAvoidance::Distance2>::const_iterator CollisionAvoidance::findMinimumDistance(const std::vector<Distance2> &distances, std::string link)
 {
-    std::vector<Distance2>::iterator min_distance = distances.end();
-    for(std::vector<Distance2>::iterator it = distances.begin(); it != distances.end(); it++) {
+    std::vector<Distance2>::const_iterator min_distance = distances.end();
+    for(std::vector<Distance2>::const_iterator it = distances.begin(); it != distances.end(); it++) {
         if (it->frame_id == link) {
             if (min_distance != distances.end()) {
                 if (it->result.min_distance < min_distance->result.min_distance) {
@@ -244,12 +244,13 @@ std::vector<CollisionAvoidance::Distance2>::iterator CollisionAvoidance::findMin
             }
         }
     }
+    return min_distance;
 }
 
-std::vector<CollisionAvoidance::RepulsiveForce>::iterator CollisionAvoidance::findMaxRepulsiveForce(std::vector<RepulsiveForce> forces, std::string link)
+std::vector<CollisionAvoidance::RepulsiveForce>::const_iterator CollisionAvoidance::findMaxRepulsiveForce(const std::vector<RepulsiveForce> &forces, std::string link)
 {
-    std::vector<RepulsiveForce>::iterator max_force = forces.end();
-    for(std::vector<RepulsiveForce>::iterator it = forces.begin(); it != forces.end(); it++) {
+    std::vector<RepulsiveForce>::const_iterator max_force = forces.end();
+    for(std::vector<RepulsiveForce>::const_iterator it = forces.begin(); it != forces.end(); it++) {
         if (it->frame_id == link) {
             if (max_force != forces.end()) {
                 if (it->amplitude > max_force->amplitude) {
@@ -261,6 +262,7 @@ std::vector<CollisionAvoidance::RepulsiveForce>::iterator CollisionAvoidance::fi
             }
         }
     }
+    return max_force;
 }
 
 void CollisionAvoidance::setCollisionWorld(WorldClient *world_client)

@@ -356,9 +356,9 @@ protected:
     /** Tracing object */
     Tracing tracer_;
 
-    std::vector<Distance2>::iterator findMinimumDistance(std::vector<Distance2> distances, std::string link);
+    std::vector<Distance2>::const_iterator findMinimumDistance(const std::vector<Distance2> &distances, std::string link);
 
-    std::vector<CollisionAvoidance::RepulsiveForce>::iterator findMaxRepulsiveForce(std::vector<RepulsiveForce> forces, std::string link);
+    std::vector<CollisionAvoidance::RepulsiveForce>::const_iterator findMaxRepulsiveForce(const std::vector<RepulsiveForce> &forces, std::string link);
 
     StatsPublisher statsPublisher_;
 };
