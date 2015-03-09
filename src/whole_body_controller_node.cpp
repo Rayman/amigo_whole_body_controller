@@ -159,6 +159,7 @@ int main(int argc, char **argv) {
 
     // Initialize node
     ros::init(argc, argv, "whole_body_controller");
+    ros::NodeHandle nh;
     ros::NodeHandle nh_private("~");
 
     nh_private.subscribe<octomap_msgs::Octomap>("/octomap_binary", 10, &octoMapCallback);
@@ -184,7 +185,7 @@ int main(int argc, char **argv) {
 
     ros::Rate r(loop_rate_);
 
-    add_motion_objective_server_ = new action_server(nh_private, "/add_motion_objective", false);
+    add_motion_objective_server_ = new action_server(nh, "add_motion_objective", false);
     add_motion_objective_server_->registerGoalCallback(boost::bind(&GoalCB));
     add_motion_objective_server_->registerPreemptCallback(boost::bind(&CancelCB));
     add_motion_objective_server_->start();

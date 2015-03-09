@@ -17,6 +17,7 @@ class WholeBodyControllerNode {
 
   protected:
     // nodehandle must be created before everything else
+    ros::NodeHandle nh;
     ros::NodeHandle private_nh;
 
   public:

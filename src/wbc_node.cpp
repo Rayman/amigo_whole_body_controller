@@ -3,12 +3,13 @@
 namespace wbc {
 
 WholeBodyControllerNode::WholeBodyControllerNode (ros::Rate &loop_rate)
-    : private_nh("~"),
+    : nh(),
+      private_nh("~"),
       loop_rate_(loop_rate),
       wholeBodyController_(loop_rate.expectedCycleTime().toSec()),
       robot_interface(&wholeBodyController_),
       jte(&wholeBodyController_),
-      motion_objective_server_(private_nh, "/add_motion_objective", false),
+      motion_objective_server_(nh, "add_motion_objective", false),
       feedback_counter(0),
       ca_param(loadCollisionAvoidanceParameters()),
       collision_avoidance(ca_param, loop_rate.expectedCycleTime().toSec()),
