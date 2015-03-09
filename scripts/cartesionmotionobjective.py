@@ -40,7 +40,7 @@ class CartesianMotionObjective():
             5.0 * self.stiffnessfactor,
             5.0 * self.stiffnessfactor)
 
-        self.action_client = actionlib.SimpleActionClient("add_motion_objective", ArmTaskAction)
+        self.action_client = actionlib.SimpleActionClient("amigo/add_motion_objective", ArmTaskAction)
         self.action_client.feedback_cb = self.feedback_cb
 
         self.action_client.wait_for_server()

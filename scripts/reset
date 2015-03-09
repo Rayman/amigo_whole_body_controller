@@ -20,7 +20,6 @@ from amigo_whole_body_controller.msg import *
 from arm_navigation_msgs.msg import *
 from cartesionmotionobjective import CartesianMotionObjective
 
-from robot_smach_states.designators.designator import Designator
 from robot_skills.amigo import Amigo
 import robot_smach_states as states
 

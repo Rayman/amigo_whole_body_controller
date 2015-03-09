@@ -40,7 +40,11 @@ if __name__ == '__main__':
                     link_name = "grippoint_" + side
                     break
 
-            position = (0.265, 0.2, 0.75)
+            if arguments['left']:
+                position = (0.265, 0.2, 0.75)
+            elif arguments['right']:
+                position = (0.265, -0.2, 0.75)
+            
             orientation = (0, 0, 0)
 
             print 'creating motion objective...'
