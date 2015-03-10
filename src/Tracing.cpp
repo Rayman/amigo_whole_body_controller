@@ -27,9 +27,9 @@ bool Tracing::Initialize(const std::string& foldername, const std::string& filen
     ros::NodeHandle n("~");
     std::string ns = n.getNamespace();
     std::string prefix;
-    if (ns == "/whole_body_controller") {
+    if (ns == "/amigo/whole_body_controller") {
         prefix = "wbc_";
-    } else if (ns == "/whole_body_planner") {
+    } else if (ns == "/amigo/whole_body_planner") {
         prefix = "wbp_";
     } else {
         prefix = "";
