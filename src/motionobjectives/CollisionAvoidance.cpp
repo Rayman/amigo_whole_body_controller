@@ -119,10 +119,10 @@ bool CollisionAvoidance::initialize(RobotState &robotstate)
 
     std::string filename("CollisionAvoidance");
     std::string foldername;
-    n.param<std::string> ("/whole_body_controller/tracing_foldername", foldername, "/tmp/");
+    n.param<std::string> ("tracing_foldername", foldername, "/tmp/");
 
     int buffersize;
-    n.param<int> ("/whole_body_controller/tracing_buffersize", buffersize, 0);
+    n.param<int> ("tracing_buffersize", buffersize, 0);
     tracer_.Initialize(foldername, filename, column_names, buffersize);
 
     ROS_INFO_STREAM("Initialized Obstacle Avoidance");
@@ -236,7 +236,7 @@ std::vector<CollisionAvoidance::Distance2>::const_iterator CollisionAvoidance::f
         if (it->frame_id == link) {
             if (min_distance != distances.end()) {
                 if (it->result.min_distance < min_distance->result.min_distance) {
-                    ROS_WARN("multiple minimum distances found for %s", it->frame_id.c_str());
+                    ROS_WARN_THROTTLE(5.0, "multiple minimum distances found for %s", it->frame_id.c_str());
                     min_distance = it;
                 }
             } else {
