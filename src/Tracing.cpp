@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <time.h>
+#include <iomanip>      // std::setprecision
 
 #include <ros/node_handle.h>
 
@@ -175,12 +176,12 @@ void Tracing::newLine() {
 
     } else if (buffer_length_ > 0) {
         if (!wroteToFile_) {
-            ROS_WARN_ONCE("Buffer of length %i is full", (int)buffer_length_);
+            ROS_WARN("Buffer of length %i is full", (int)buffer_length_);
             ros::Time start = ros::Time::now();
             writeToFile();
             ros::Time end = ros::Time::now();
             double duration = (end-start).toSec();
-            ROS_WARN_ONCE("Writing took %f seconds", duration);
+            ROS_WARN("Writing took %f seconds", duration);
         }
         // ToDo: write to file upon deconstruction
         //} else {
@@ -199,7 +200,7 @@ void Tracing::writeToFile() {
         ROS_DEBUG("Write data to file, size = %i", (int)buffers_.size());
 
         /// Take value of first stamp such that time starts counting from 0
-        double first_stamp = buffers_[0][0];
+//        double first_stamp = buffers_[0][0];
 
         /// Open file
         std::ofstream my_file;
@@ -215,9 +216,11 @@ void Tracing::writeToFile() {
         /// Loop over rows
         for (unsigned int i = 0; i < buffers_.size(); i++) {
             //ROS_INFO("Row %i", (int)i);
-            my_file << buffers_[i][0] - first_stamp;
+            my_file << std::setprecision(19); // epoch timestamp in nsecs 10 + 9
+            my_file <<  buffers_[i][0];// - first_stamp;
 
             /// Loop over columns
+            my_file << std::setprecision(8);
             for (unsigned int j = 1; j < number_columns_; j++) {
                 //ROS_INFO("column %i", (int)j);
                 my_file << "\t" << buffers_[i][j];
