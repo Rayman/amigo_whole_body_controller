@@ -1,34 +1,56 @@
 #!/usr/bin/env python
 
+"""Plot collision avoidance
+
+Usage:
+  plot.py
+  plot.py <folder>
+
+Options:
+  -h --help     Show this screen
+"""
+
 import os
 from glob import glob
+from os import path
+from docopt import docopt
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-files = glob('/tmp/wbc_CollisionAvoidance_*.dat')
+def plot(df):
 
-df = pd.read_csv(files[0], sep='\t', index_col='Time')
+    # start of experiment = 0 secon
+    start_date = min(df.index.values)
+    df.set_index(df.index.values - start_date, inplace=True)
 
-# remove all empty rows
-df = df[df.index.values != 0]
+    fig = plt.figure()
 
-# start of experiment = 0 secon
-start_date = min(df.index.values)
-df.set_index(df.index.values - start_date, inplace=True)
+    ax1 = df.min_distance.plot(label='Minimum distance')
+    ax1.set_xlabel('Time (s)')
+    ax1.set_ylim(0, 0.066*2)
+    ax1.set_ylabel('Distance (m)')
+    ax1.legend(loc=2)
+    ax1.axhline(y=0.066, color='k')
 
-fig = plt.figure()
+    ax2 = df.amplitude.plot(secondary_y=True, style='g', label='Repulsive force')
+    ax2.set_ylabel('Force magnitude (N)')
+    ax2.legend(loc=1)
 
-ax1 = df.min_distance.plot(label='Minimum distance')
-ax1.set_xlabel('Time (s)')
-ax1.set_ylim(0, 0.066*2)
-ax1.set_ylabel('Distance (m)')
-ax1.legend(loc=2)
-ax1.axhline(y=0.066, color='k')
+    plt.show()
 
-ax2 = df.amplitude.plot(secondary_y=True, style='g', label='Repulsive force')
-ax2.set_ylabel('Force magnitude (N)')
-ax2.legend(loc=1)
+if __name__ == '__main__':
+    arguments = docopt(__doc__)
 
-plt.show()
+    folder = arguments['<folder>']
+    if folder:
+        files = glob(path.join(folder, 'wbc_CollisionAvoidance_*.dat'))
+
+        dfs = [pd.read_csv(f, sep='\t', index_col='Time') for f in files]
+        df = pd.concat(dfs)
+
+        # remove all empty rows
+        df = df[df.index.values != 0]
+
+        plot(df)
