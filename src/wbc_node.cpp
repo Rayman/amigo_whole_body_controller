@@ -122,6 +122,8 @@ void WholeBodyControllerNode::goalCB(MotionObjectiveServer::GoalHandle handle) {
         goal_map[id] = std::pair<MotionObjectiveServer::GoalHandle, MotionObjectivePtr>(handle, MotionObjectivePtr(cartesian_impedance));
         handle.setAccepted();
     }
+
+    world_client_->setIgnoredEntities(goal->ignore_entities);
 }
 
 void WholeBodyControllerNode::cancelCB(MotionObjectiveServer::GoalHandle handle) {

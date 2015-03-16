@@ -9,12 +9,17 @@ string goal_type
 arm_navigation_msgs/PositionConstraint position_constraint
 arm_navigation_msgs/OrientationConstraint orientation_constraint
 
-# Stiffness 
+# Stiffness
 # Should we define a separate message containing two Vector3's (Twist and Wrench are identical)
 # With respect to what frame is this?
 geometry_msgs/Wrench stiffness
 
-# Remove motion objectives: 
+# ignore entities
+string[] ignore_entities
+
+# Both remove_*_frame are obsolete with the new wbc node structure
+
+# Remove motion objectives:
 string remove_tip_frame
 # Optional
 string remove_root_frame

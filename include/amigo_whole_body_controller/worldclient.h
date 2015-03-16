@@ -15,6 +15,8 @@ public:
     virtual WorldPtr getWorld() = 0;
 
     virtual void start() = 0;
+
+    virtual void setIgnoredEntities(std::vector<std::string> entities) {}
 };
 
 } // namespace
