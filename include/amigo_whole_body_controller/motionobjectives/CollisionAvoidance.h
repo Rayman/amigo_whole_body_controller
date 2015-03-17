@@ -119,6 +119,7 @@ public:
         struct Parameters
         {
             double f_max;
+            double f_min_percent;
             double d_threshold;
             int order;
             double octomap_resolution;

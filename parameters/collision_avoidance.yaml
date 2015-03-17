@@ -2,11 +2,13 @@ collision_avoidance:
     self_collision:
         d_threshold: 0.066
         F_max: 18
+        F_min_percent: 5
         order: 2
         visualization_force_factor: 5
     environment_collision:
         d_threshold: 0.066
         F_max: 18
+        F_min_percent: 5
         order: 2
         visualization_force_factor: 5
 

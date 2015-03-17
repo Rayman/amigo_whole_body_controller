@@ -64,11 +64,13 @@ wbc::CollisionAvoidance::collisionAvoidanceParameters WholeBodyControllerNode::l
     std::string ns = "collision_avoidance";
 
     n.param<double> (ns+"/self_collision/F_max",                        ca_param.self_collision.f_max, 1.0);
+    n.param<double> (ns+"/self_collision/F_min_percent",                ca_param.self_collision.f_min_percent, 5.0);
     n.param<double> (ns+"/self_collision/d_threshold",                  ca_param.self_collision.d_threshold, 1.0);
     n.param<int>    (ns+"/self_collision/order",                        ca_param.self_collision.order, 1);
     n.param<double> (ns+"/self_collision/visualization_force_factor",   ca_param.self_collision.visualization_force_factor, 1.0);
 
     n.param<double> (ns+"/environment_collision/F_max",                         ca_param.environment_collision.f_max, 1.0);
+    n.param<double> (ns+"/environment_collision/F_min_percent",                 ca_param.environment_collision.f_min_percent, 5.0);
     n.param<double> (ns+"/environment_collision/d_threshold",                   ca_param.environment_collision.d_threshold, 1.0);
     n.param<int>    (ns+"/environment_collision/order",                         ca_param.environment_collision.order, 1);
     n.param<double> (ns+"/environment_collision/visualization_force_factor",    ca_param.environment_collision.visualization_force_factor, 1.0);

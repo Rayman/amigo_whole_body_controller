@@ -1339,6 +1339,11 @@ void CollisionAvoidance::calculateRepulsiveForce(const std::vector<Distance> &mi
 
             F.amplitude = param.f_max / pow(param.d_threshold,param.order) * pow((param.d_threshold - dmin.bt_distance.m_distance),param.order) ;
 
+            // only include forces that are big enough to contribute to prevent blocking the jacobian
+            if (F.amplitude < param.f_min_percent * param.f_max) {
+                continue;
+            }
+
             // Store all minimum distances;
             repulsiveForces.push_back(F);
         }
