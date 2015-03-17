@@ -14,8 +14,9 @@ arm_navigation_msgs/OrientationConstraint orientation_constraint
 # With respect to what frame is this?
 geometry_msgs/Wrench stiffness
 
-# ignore entities
-string[] ignore_entities
+# an optional list of obstacles that we have semantic information about
+# and that can be touched/pushed/moved in the course of grasping;
+string[] allowed_touch_objects
 
 # Both remove_*_frame are obsolete with the new wbc node structure
 

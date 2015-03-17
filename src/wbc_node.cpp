@@ -123,7 +123,9 @@ void WholeBodyControllerNode::goalCB(MotionObjectiveServer::GoalHandle handle) {
         handle.setAccepted();
     }
 
-    world_client_->setIgnoredEntities(goal->ignore_entities);
+    if (world_client_) {
+        world_client_->setIgnoredEntities(goal->allowed_touch_objects);
+    }
 }
 
 void WholeBodyControllerNode::cancelCB(MotionObjectiveServer::GoalHandle handle) {
