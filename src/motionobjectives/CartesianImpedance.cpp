@@ -406,7 +406,7 @@ void CartesianImpedance::apply(RobotState &robotstate) {
     //std::cout << "Torque due to Cartesian impedance = " << torques_ << std::endl;
 
     /// Log data when active
-    if (status_ == 2) {
+    if (status_ == 2 || status_ == 1) {
         tracer_.newLine();
         tracer_.collectTracing(1,  frame_root_ref);
         //tracer_.collectTracing(7,  frame_root_tip);
