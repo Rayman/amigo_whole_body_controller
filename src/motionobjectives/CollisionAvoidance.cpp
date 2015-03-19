@@ -197,7 +197,10 @@ void CollisionAvoidance::apply(RobotState &robotstate)
     std::vector<Distance2>::const_iterator min_distance = findMinimumDistance(min_distances_total_fcl, "grippoint_right");
     std::vector<RepulsiveForce>::const_iterator max_force = findMaxRepulsiveForce(repulsive_forces_total_fcl, "grippoint_right");
 
-    tracer_.newLine();
+    if (min_distance != min_distances_total_fcl.end()
+            || max_force != repulsive_forces_total_fcl.end()) {
+        tracer_.newLine();
+    }
 
     if (min_distance != min_distances_total_fcl.end()) {
         const Distance2 &distance = *min_distance;
