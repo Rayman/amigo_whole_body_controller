@@ -418,7 +418,8 @@ void CartesianImpedance::apply(RobotState &robotstate) {
     if (convergedConstraints() >= num_constrained_dofs_ && status_ == 2) {
         status_ = 1;
         tracer_.writeToFile();
-        //ROS_WARN("Converged!, remaining error (x,y,z,r,p,y) = (%f, %f, %f, %f, %f, %f)",error_vector(0),error_vector(1),error_vector(2),error_vector(3),error_vector(4),error_vector(5));
+        ROS_INFO("Converged!, remaining error (x,y,z,r,p,y) = (%f, %f, %f, %f, %f, %f)",
+                 pose_error_(0),pose_error_(1),pose_error_(2),pose_error_(3),pose_error_(4),pose_error_(5));
     }
 
 	/// Set the tip velocity
