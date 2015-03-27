@@ -2,6 +2,7 @@
 
 #include "ChainParser.h"
 #include <ros/node_handle.h>
+#include <assert.h>
 
 WholeBodyController::WholeBodyController(const double Ts)
 {
@@ -97,6 +98,7 @@ bool WholeBodyController::initialize(const double Ts)
     for (unsigned int i = 0; i < index_to_joint_name_.size(); i++) column_names.push_back("tau_cart"+index_to_joint_name_[i]);
     for (unsigned int i = 0; i < index_to_joint_name_.size(); i++) column_names.push_back("tau_null"+index_to_joint_name_[i]);
     for (unsigned int i = 0; i < index_to_joint_name_.size(); i++) column_names.push_back("tau_total"+index_to_joint_name_[i]);
+    for (unsigned int i = 0; i < index_to_joint_name_.size(); i++) column_names.push_back("q0_"+index_to_joint_name_[i]);
     column_names.push_back("cartesian_impedance_cost");
     column_names.push_back("collision_avoidance_cost");
     column_names.push_back("joint_limit_cost");
@@ -258,15 +260,25 @@ bool WholeBodyController::update(Eigen::VectorXd &q_reference, Eigen::VectorXd& 
         }
     }
     if (do_trace) {
+
+        std::vector<double> q0s;
+        q0s.reserve(num_joints_);
+        for (std::vector<std::string>::iterator it = index_to_joint_name_.begin(); it != index_to_joint_name_.end(); ++it) {
+            q0s.push_back(PostureControl_.getJointTarget(*it));
+        }
+        assert(q0s.size() == num_joints_);
+
         tracer_.newLine();
         tracer_.collectTracing(1, q_current_.data);
         /////tracer_.collectTracing(num_joints_+1, tau_cart);
         /////tracer_.collectTracing(2*num_joints_+1, tau_null);
         tracer_.collectTracing(3*num_joints_+1, tau_);
-        tracer_.collectTracing(4*num_joints_+1, ci_cost);
-        tracer_.collectTracing(4*num_joints_+2, ca_cost);
-        tracer_.collectTracing(4*num_joints_+3, JointLimitAvoidance_.getCost());
-        tracer_.collectTracing(4*num_joints_+4, PostureControl_.getCost());
+        tracer_.collectTracing(4*num_joints_+1, q0s);
+        tracer_.collectTracing(5*num_joints_+1, ci_cost);
+        tracer_.collectTracing(5*num_joints_+2, ca_cost);
+        tracer_.collectTracing(5*num_joints_+3, JointLimitAvoidance_.getCost());
+        tracer_.collectTracing(5*num_joints_+4, PostureControl_.getCost());
+
     }
 
     statsPublisher_.stopTimer("WholeBodyController::update");

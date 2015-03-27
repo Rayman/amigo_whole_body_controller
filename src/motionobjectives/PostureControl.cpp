@@ -80,6 +80,18 @@ bool PostureControl::setJointTarget(const std::string& joint_name, const double&
 
 }
 
+double PostureControl::getJointTarget(std::string joint_name)
+{
+    std::map<std::string, unsigned int>::const_iterator index_iter = joint_name_to_index_.find(joint_name);
+    if (index_iter != joint_name_to_index_.end())
+    {
+        return q0_[index_iter->second];
+    } else {
+        ROS_ERROR_NAMED("PostureControl", "PostureControl: Joint %s not in posture controller", joint_name.c_str());
+        return 0;
+    }
+}
+
 double PostureControl::getCost() {
 
     return current_cost_;

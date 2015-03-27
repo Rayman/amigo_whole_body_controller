@@ -34,6 +34,8 @@ public:
       */
     bool setJointTarget(const std::string &joint_name, const double &value);
 
+    double getJointTarget(std::string joint_name);
+
     /**
       * Returns cost, i.e., the absolute value of the torque of every single plugin
       */
