@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     folder = arguments['<folder>']
     if folder:
-        files = glob(path.join(folder, 'wbc_CollisionAvoidance_*.dat'))
+        files = glob(path.join(folder, 'wbc_CartImp_*.dat'))
 
         dfs = [pd.read_csv(f, sep='\t', index_col='Time') for f in files]
         df = pd.concat(dfs)
