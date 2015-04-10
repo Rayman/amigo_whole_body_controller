@@ -14,4 +14,8 @@ collision_avoidance:
 
 # d_threshold:   Threshold from which the repulsive force starts acting, in [m]
 # F_max:         Maximum amplitude of the repulsive force in [N] (when d=0 [m])
+# F_min_percent: Below this force % it will not generate a repulsive force to prevent
+#                blocking of the jacobian in that direction
 # order:         Order of the repulsive force polynomial
+# visualization_force_factor: repulsive forces will be calculated only when they are
+#                < visualization_force_factor * d_threshold
