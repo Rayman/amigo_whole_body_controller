@@ -28,7 +28,7 @@ def euler_z_to_orientation_goal(orientation=None):
 
 class CartesianMotionObjective():
 
-    stiffnessfactor = 4.0
+    stiffnessfactor = 2.0
 
     def __init__(self):
         self.force = (
