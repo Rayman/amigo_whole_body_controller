@@ -20,7 +20,7 @@
 		<node pkg="amigo_whole_body_controller" type="wbc" name="whole_body_controller" respawn="false" output="screen"> <!-- launch-prefix="${arg launch_prefix}"/> -->
 			<param name="omit_admittance" value="false"/> <!--If ROBOT_REAL is true, admittance controller is omitted since this is implemented in Orocos-->
 			<param name="tracing_folder" value="/tmp/"/>
-			<param name="tracing_buffersize" value="0"/>
+			<param name="tracing_buffersize" value="5000"/>
 		<!--<remap from="/amigo/right_arm/references" to="/TEST_TORQUES_RIGHT" />
 			<remap from="/amigo/left_arm/references" to="/TEST_TORQUES_LEFT" />
 			<remap from="/amigo/torso/references" to="/TEST_TORQUES_TORSO" />-->

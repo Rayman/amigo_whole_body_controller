@@ -9,7 +9,9 @@ rosbag record \
     --regex '.*diagnostics.+' \
     --regex '.*/ed/.+' \
     --regex '.*/world_model' \
+    --regex '.*/top_kinect/rgbd' \
     /tf \
     /tf_static \
     /rosout \
     /rosout_agg \
+    -x '.*/collision_model_markers_fcl'
