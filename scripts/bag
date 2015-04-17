@@ -1,0 +1,15 @@
+#!/bin/bash
+
+rosbag record \
+    --regex '.*/whole_body_.+' \
+    --regex '.*/add_motion_objective/.+' \
+    --regex '.*/joint_trajectory_action/.+' \
+    --regex '.*_arm/.+' \
+    --regex '.*(references|measurements|goal|result|status|cancel|feedback)' \
+    --regex '.*diagnostics.+' \
+    --regex '.*/ed/.+' \
+    --regex '.*/world_model' \
+    /tf \
+    /tf_static \
+    /rosout \
+    /rosout_agg \
