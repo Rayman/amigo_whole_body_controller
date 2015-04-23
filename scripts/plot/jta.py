@@ -19,18 +19,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+
 def plot(df):
 
     # start of experiment = 0 secon
     start_date = min(df.index.values)
     df.set_index(df.index.values - start_date, inplace=True)
 
-    columns = [column for column in df.columns if column.endswith('_joint_left')]
-    columns = [column for column in columns if column.startswith('shoulder') or column.startswith('q0_shoulder')]
+    columns = [column for column in df.columns
+               if column.endswith('_joint_left')]
+    columns = [column for column in columns
+               if column.startswith('shoulder') or column.startswith('q0_shoulder')]
 
-    taus = df.loc[:,columns]
+    taus = df.loc[:, columns]
 
-    taus.plot()
+    taus.plot(style='.')
     plt.legend(loc='best')
     plt.show()
 
@@ -46,5 +49,6 @@ if __name__ == '__main__':
 
         # remove all empty rows
         df = df[df.index.values != 0]
+        df.sort_index(inplace=True)
 
         plot(df)

@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+
 def plot(df):
 
     # start of experiment = 0 secon
@@ -34,7 +35,7 @@ def plot(df):
     ax1.legend(loc=2)
     ax1.axhline(y=0.066, color='k')
 
-    ax2 = df.amplitude.plot(secondary_y=True, style='g', label='Repulsive force')
+    ax2 = df.amplitude.plot(secondary_y=True, style='.', label='Repulsive force')
     ax2.set_ylabel('Force magnitude (N)')
     ax2.legend(loc=1)
 
@@ -52,5 +53,6 @@ if __name__ == '__main__':
 
         # remove all empty rows
         df = df[df.index.values != 0]
+        df.sort_index(inplace=True)
 
         plot(df)

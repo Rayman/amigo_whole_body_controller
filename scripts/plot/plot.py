@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+
 def plot(df):
 
     # start of experiment = 0 secon
@@ -26,11 +27,13 @@ def plot(df):
     df.set_index(df.index.values - start_date, inplace=True)
 
     columns = [column for column in df.columns if column.endswith('_joint_left')]
+    for c in columns:
+        print c
     tau_columns = [column for column in columns if column.startswith('tau_totalshoulder')]
 
-    taus = df.loc[:,tau_columns]
+    taus = df.loc[:, tau_columns]
 
-    taus.plot()
+    taus.plot(style='.')
     plt.legend(loc='best')
     plt.show()
 
@@ -43,6 +46,7 @@ if __name__ == '__main__':
 
         dfs = [pd.read_csv(f, sep='\t', index_col='Time') for f in files]
         df = pd.concat(dfs)
+        df.sort_index(inplace=True)
 
         # remove all empty rows
         df = df[df.index.values != 0]
