@@ -8,9 +8,6 @@ compiler:
   - clang
 env:
   - ROS_DISTRO=hydro
-matrix:
-  allow_failures:
-    - compiler: clang
 
 before_install:
   - CI_SOURCE_PATH=$(pwd)
