@@ -121,8 +121,10 @@ bool ChainParser::parseChain(XmlRpc::XmlRpcValue& chain_description, Tree tree, 
 
     Chain* chain = new Chain();
 
-    //if (!tree.kdl_tree.getChain(root_link_name, tip_link_name, chain->kdl_chain_)) {
-    if (!tree.kdl_tree_.getChain("base", tip_link_name, chain->kdl_chain_)) {
+    ROS_INFO("Looking for chain from %s to %s", root_link_name.c_str(), tip_link_name.c_str());
+
+    if (!tree.kdl_tree_.getChain(root_link_name, tip_link_name, chain->kdl_chain_)) {
+//    if (!tree.kdl_tree_.getChain("base", tip_link_name, chain->kdl_chain_)) {
         ROS_FATAL("Could not initialize chain object");
         return false;
     }
