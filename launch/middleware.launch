@@ -2,61 +2,55 @@
 
 <launch>
 
-    <param name="/use_ed" value="true"/>
+	<group ns="amigo">
 
-    <arg name="env" default="$(optenv ROBOT_ENV robotics_testlab_B)" />
-    <arg name="ROBOT_REAL" default="$(optenv ROBOT_REAL false)" />
+		<!-- MANIPULATION -->
+        <include file="$(find robot_launch_files)/launch/manipulation/moveit.launch">
+			<arg name="machine" value="amigo1"/>
+		</include>
+		<include file="$(find robot_launch_files)/launch/manipulation/arm.launch">
+			<arg name="name" value="left_arm"/>
+			<arg name="machine" value="amigo1"/>
+		</include>
+		<include file="$(find robot_launch_files)/launch/manipulation/arm.launch">
+			<arg name="name" value="right_arm"/>
+			<arg name="machine" value="amigo1"/>
+		</include>
+		<include file="$(find robot_launch_files)/launch/manipulation/head.launch">
+			<arg name="machine" value="amigo1"/>
+		</include>
 
-    <group if="$(arg ROBOT_REAL)">
-        <!-- REAL ROBOT -->
+		<!-- NAVIGATION -->
+<!--         <include file="$(find robot_launch_files)/launch/navigation/navigation.launch">
+			<arg name="machine" value="amigo1"/>
+		</include>  -->
 
-        <!-- Start all sensors -->
-        <include file="$(find amigo_launch_files)/launch/sensors/sensors.launch" />
-    </group>
+		<!-- WORLD MODEL -->
+        <include file="$(find robot_launch_files)/launch/world_modeling/world_model.launch">
+			<arg name="machine" value="amigo1"/>
+		</include>
 
+<!-- 		<include file="$(find robot_launch_files)/launch/world_modeling/reasoner.launch">
+			<arg name="machine" value="amigo3"/>
+		</include>  -->
 
-    <!-- Localization -->
-    <include file="$(find amigo_launch_files)/launch/middleware/localization.launch" />
+		<!-- SPEECH RECOGNITION -->
+<!--         <include file="$(find robot_launch_files)/launch/interaction/speech_recognition.launch">
+			<arg name="machine" value="amigo3"/>
+		</include>  -->
 
-    <!-- Head movement -->
-    <include file="$(find head_ref)/launch/head_ref.launch" />
-    <node name="head_ref_ed_client" pkg="head_ref_ed_client" type="head_ref_ed_client" output="screen" />
+		<!-- TEXT TO SPEECH -->
+<!--         <include file="$(find robot_launch_files)/launch/interaction/text_to_speech.launch">
+			<arg name="machine-tts" value="amigo3"/>
+			<arg name="machine-play" value="amigo3"/>
+		</include>  -->
 
-    <!-- Manipulation -->
-    <!-- <include file="$(find amigo_launch_files)/launch/manipulation/manipulation.launch" /> -->
-    <include file="$(find amigo_launch_files)/launch/manipulation/grasp_precompute_action.launch"/>
+		<!-- Action server -->
+<!--         <include file="$(find robot_launch_files)/launch/interaction/action_server.launch">
+			<arg name="machine" value="amigo1"/>
+			<arg name="robot" value="amigo" />
+		</include>  -->
 
-	<!-- Gripper -->
-    <include file="$(find amigo_launch_files)/launch/manipulation/grippers.launch" />
-
-    <!-- RGBD (Kinect) server -->
-    <!-- <include file="$(find amigo_launch_files)/launch/sensors/top_kinect_rgbd.launch" /> -->
-
-    <!-- World Model -->
-	<!-- <node name="ed_server" pkg="ed" type="ed_server" args="$(find ed)/config/$(optenv ED_CONFIG amigo).yaml" output="screen" /> -->
-
-    <!-- Reasoner -->
-    <!-- <param name="/reasoner/world_model_type" value="ed"/> -->
-    <!-- <include file="$(find tue_reasoner_core)/launch/start.launch" /> -->
-
-    <!-- Start text to speech -->
-    <!-- <include file="$(find amigo_launch_files)/launch/interaction/text_to_speech.launch" /> -->
-
-    <!-- Start speech recognition -->
-    <!--
-    <group if="$(arg ROBOT_REAL)">
-        <include file="$(find amigo_launch_files)/launch/interaction/df_speech_recognition.launch" />	
-    </group>
-    <group unless="$(arg ROBOT_REAL)">
-        <include file="$(find amigo_launch_files)/launch/interaction/df_speech_recognition_dummy.launch" />	
-    </group>
-    -->
-
-    <!-- Start speech interpreter -->
-    <!-- <include file="$(find amigo_launch_files)/launch/interaction/speech_interpreter.launch" />  -->
-
-    <!-- Action server -->
-    <!-- <node name="action_server" pkg="action_server" type="action_server_main" output="screen" /> -->
-    <!-- <node name="action_server_py" pkg="action_server" type="main.py" output="screen" /> -->
+	</group>
 
 </launch>
